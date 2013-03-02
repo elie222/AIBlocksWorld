@@ -1,0 +1,33 @@
+Box:G,
+Box:B,
+Box:E,
+Box:A,
+Box:D,
+Box:I,
+Box:C,
+Box:F,
+Box:H
+;
+INIT,
+A ON TABLE,
+B ON A,
+C ON TABLE,
+D ON C,
+E ON TABLE,
+F ON D,
+G ON TABLE,
+H ON G,
+I ON H,
+ARMEMPTY
+;
+FIN,
+A ON TABLE,
+B ON A,
+C ON B,
+D ON TABLE,
+E ON D,
+F ON C,
+G ON F,
+H ON E,
+I ON TABLE,
+ARMEMPTY
