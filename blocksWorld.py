@@ -7,18 +7,36 @@ class BlocksWorldSolver:
 	"""
 	self.startState = {}
 	self.goalState = {}
-	self.method = {"BFS": breadthFirstSearch, "DFS": depthFirstSearch}
-	   
+	self.method = {"BFS": breadthFirstSearch, "DFS": depthFirstSearch, "UCS": uniformCostSearch, "aStar": aStarSearch}
 
+    def populateWorld(self):
+        return 0
+
+    def populateGoal(self):
+        return 0
+
+    """
+    Start and goal states have to be fully defined.
+    """
     def setStartState(self, state):
         self.startState = state
 
     def setGoalState(self, state):
-        self.goalState = state 
+        self.goalState = state
+
+    def isGoalState(self, state):
+        if state == self.goalState:
+            return True
+        else:
+            return False
             
     def solve(self, methodName):
-        self.method[methodName]()            
-
+        self.method[methodName]()
+        
+    """
+    Algorithms
+    """
+    
     def getStatePathFromNode(givenNode, problem):
       """
       return the path of the given node
@@ -77,7 +95,6 @@ class BlocksWorldSolver:
       "Search the node of least total cost first. "
       return aStarSearch(problem)
 
-    
     def nullHeuristic():
         """
         A heuristic function estimates the cost from the current state to the nearest
@@ -106,10 +123,55 @@ class BlocksWorldSolver:
       print "Error: no path from start state to goal state"
             
     def getSuccessors(state):
-        if state[ARMHOLDING] == "NONE":
-            return 0                         
+        successors = []
+        if state["HOLDING"] == None:
+            # pick up a block that is clear
+            for obj in state:
+                if obj == "HOLDING":
+                    continue
+                successors.append(pickUp(state,obj))                        
         else:
-            return 0
+            # put down the block that is currently being held and put it on top of a clear block or the table
+            for obj in state:
+                if obj == "HOLDING":
+                    continue
+                successors.append(putDown(state,obj))
+
+        return successors
+
+    """
+    Successor States
+    """
+
+    """
+    Return the state we get to when we pick up obj from state.
+    obj is a string. (eg. "A" or "B")
+    """
+    def pickUp(state, obj):
+        if not state[obj]["clear"] or not state["HOLDING"] == None:
+            raise Exception("Cannot pick up", obj)
+        else:
+            newState = {}
+            newState = state
+            newState["HOLDING"] = obj
+            newState[obj]["on"] = None
+            newState[state[obj]["on"]]["clear"] = True
+            return newState
+    """
+    Return the state we get to when we put down the object that is currently
+    being held onto obj.
+    obj is a string. (eg. "A" or "B")
+    """
+    def putDown(state, obj):
+        if state["HOLDING"] == None:
+            raise Exception("Not holding any objects")
+        else:
+            newState = {}
+            newState = state
+            newState["HOLDING"] = None
+            newState[state["HOLDING"]]["on"] = obj
+            newState[obj]["clear"] = False
+            return newState
                     
     def getStatePathFromNode(givenNode):
         """
@@ -123,7 +185,7 @@ class BlocksWorldSolver:
             curNode = curNode[3]
         givenNodePath.reverse()
         return givenNodePath
-		
+
 		
 def runMain():
     """
@@ -132,39 +194,43 @@ def runMain():
     """
     ## Test 1
     print "nn Running Test 1 n"
-    ws = "((on C B), (ontable B), (ontable A), (clear A), (clear C), (armempty))"
-    gs = "((on A B), (ontable B), (clear A))"
+##    ws = "((on C B), (ontable B), (ontable A), (clear A), (clear C), (armempty))"
+    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
+    gs = {"A": {"on": "B", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "TABLE", "clear": True}, "HOLDING": None}
     s = BlocksWorldSolver()
-    s.populateGoal(gs)
-    s.populateWorld(ws)
-    s.solve()
+##    s.populateGoal(gs)
+##    s.populateWorld(ws)
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    
+    s.solve("DFS")
 
-    ## Test 2
-    print "nn Running Test 2 n"
-    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
-    gs = "((on C B), (on D A), (ontable B), (clear D))"
-    s = BlocksWorldSolver()
-    s.populateGoal(gs)
-    s.populateWorld(ws)
-    s.solve()
-
-    ## Test 3
-    print "nn Running Test 3 n"
-    ws = "((clear A), (armempty), (clear D), (ontable C),  (ontable D), (on B C), (on A B))"
-    gs = "((ontable C), (ontable D), (on B D), (clear A), (on A C),  (clear B))"
-    s = BlocksWorldSolver()
-    s.populateGoal(gs)
-    s.populateWorld(ws)
-    s.solve()
-
-    # Test 2 with extra goal state
-    print "nn Running Test 2 with extra Goal State n"
-    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
-    gs = "((on C B), (on D A), (ontable B), (clear D),(ontable A))"
-    s = BlocksWorldSolver()
-    s.populateGoal(gs)
-    s.populateWorld(ws)
-    s.solve()
+##    ## Test 2
+##    print "nn Running Test 2 n"
+##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
+##    gs = "((on C B), (on D A), (ontable B), (clear D))"
+##    s = BlocksWorldSolver()
+##    s.populateGoal(gs)
+##    s.populateWorld(ws)
+##    s.solve()
+##
+##    ## Test 3
+##    print "nn Running Test 3 n"
+##    ws = "((clear A), (armempty), (clear D), (ontable C),  (ontable D), (on B C), (on A B))"
+##    gs = "((ontable C), (ontable D), (on B D), (clear A), (on A C),  (clear B))"
+##    s = BlocksWorldSolver()
+##    s.populateGoal(gs)
+##    s.populateWorld(ws)
+##    s.solve()
+##
+##    # Test 2 with extra goal state
+##    print "nn Running Test 2 with extra Goal State n"
+##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
+##    gs = "((on C B), (on D A), (ontable B), (clear D),(ontable A))"
+##    s = BlocksWorldSolver()
+##    s.populateGoal(gs)
+##    s.populateWorld(ws)
+##    s.solve()
  
 if __name__ == "__main__" :
     runMain()
