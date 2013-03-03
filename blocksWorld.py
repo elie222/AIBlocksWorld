@@ -1,4 +1,5 @@
 import util
+import copy
 
 class BlocksWorldSolver:
     ## Initialization code
@@ -34,21 +35,28 @@ class BlocksWorldSolver:
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
-        """
-        
+        """        
         successors = []
         if state["HOLDING"] == None:
             # pick up a block that is clear
             for obj in state:
                 if obj == "HOLDING":
                     continue
-                successors.append((pickUp(state,obj),"PICKUP",1))                        
+                successor = pickUp(state,obj)
+                if not successor == None:
+                    successors.append((successor,"PICKUP",1))                       
         else:
             # put down the block that is currently being held and put it on top of a clear block or the table
             for obj in state:
                 if obj == "HOLDING":
                     continue
-                successors.append((putDown(state,obj),"PUTDOWN",1))
+                successor = putDown(state,obj)
+                if not successor == None:
+                    successors.append((successor,"PUTDOWN",1))
+                    
+            successor = putDown(state,"TABLE")
+            if not successor == None:
+                successors.append((successor,"PUTDOWN",1))
 
         return successors
             
@@ -57,32 +65,42 @@ class BlocksWorldSolver:
 
 """
 Return the state we get to when we pick up obj from state.
+Returns None if the operation is illegal.
 obj is a string. (eg. "A" or "B")
 """
 def pickUp(state, obj):
+    print "\nPICK UP.\nstate:", state, "\nobj:", obj, "\n"
+
     if not state[obj]["clear"] or not state["HOLDING"] == None:
-        raise Exception("Cannot pick up", obj)
+        return None
+        #raise Exception("Cannot pick up", obj)
     else:
-        newState = {}
-        newState = state
+        newState = copy.deepcopy(state)
         newState["HOLDING"] = obj
         newState[obj]["on"] = None
-        newState[state[obj]["on"]]["clear"] = True
+
+        if not state[obj]["on"] == "TABLE":
+            newState[state[obj]["on"]]["clear"] = True
+
         return newState
 """
 Return the state we get to when we put down the object that is currently
 being held onto obj.
-obj is a string. (eg. "A" or "B")
+Returns None if the operation is illegal.
+obj is a string. (eg. "A" or "B" or "TABLE")
 """
 def putDown(state, obj):
+    print "\nPUT UP.\nstate:", state, "\nobj:", obj, "\n"
+
     if state["HOLDING"] == None:
-        raise Exception("Not holding any objects")
+        return None
+        #raise Exception("Not holding any objects")
     else:
-        newState = {}
-        newState = state
+        newState = copy.deepcopy(state)
         newState["HOLDING"] = None
         newState[state["HOLDING"]]["on"] = obj
-        newState[obj]["clear"] = False
+        if not obj == "TABLE":
+            newState[obj]["clear"] = False
         return newState
 
 
@@ -115,6 +133,8 @@ def depthOrBreadthFirstSearch(problem, container):
         curNode = container.pop()
         if (problem.isGoalState(curNode[0])):
             return getStatePathFromNode(curNode, problem)
+##            print "FOUND PATH"
+##            return 0
         for successor in problem.getSuccessors(curNode[0]):
             if not successor[0] in visitedStates:
                 successorNode = (successor[0], successor[1], successor[2], curNode)
@@ -198,7 +218,7 @@ def runMain():
     print "nn Running Test 1 n"
 ##    ws = "((on C B), (ontable B), (ontable A), (clear A), (clear C), (armempty))"
     ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
-    gs = {"A": {"on": "B", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "TABLE", "clear": True}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
     s = BlocksWorldSolver()
 ##    s.populateGoal(gs)
 ##    s.populateWorld(ws)
