@@ -44,7 +44,7 @@ class BlocksWorldSolver:
                     continue
                 successor = pickUp(state,obj)
                 if not successor == None:
-                    successors.append((successor,"PICKUP",1))                       
+                    successors.append((successor,"PICKUP: " + obj,1))                       
         else:
             # put down the block that is currently being held and put it on top of a clear block or the table
             for obj in state:
@@ -52,16 +52,17 @@ class BlocksWorldSolver:
                     continue
                 successor = putDown(state,obj)
                 if not successor == None:
-                    successors.append((successor,"PUTDOWN",1))
+                    successors.append((successor,"PUTDOWN: " + state["HOLDING"] + " ON: " + obj,1))
                     
             successor = putDown(state,"TABLE")
             if not successor == None:
-                successors.append((successor,"PUTDOWN",1))
+                successors.append((successor,"PUTDOWN: " + state["HOLDING"] + " ON: TABLE",1))
 
         return successors
             
     def solve(self, methodName):
-        self.method[methodName](self)
+        sol = self.method[methodName](self)
+        print sol
 
 """
 Return the state we get to when we pick up obj from state.
@@ -120,6 +121,20 @@ def getStatePathFromNode(givenNode, problem):
     curNode = curNode[3]
   givenNodePath.reverse()
   return givenNodePath
+
+## I don't know what this is, but I don't think we need it.
+##def getStatePathFromNode(givenNode):
+##    """
+##    return the path of the given node
+##    """
+##    givenNodePath = []
+##    curNode = givenNode
+##
+##    while(curNode[0] != self.startState):
+##        givenNodePath.append(curNode[1])
+##        curNode = curNode[3]
+##    givenNodePath.reverse()
+##    return givenNodePath
 
 def depthOrBreadthFirstSearch(problem, container):
     """
@@ -194,19 +209,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         frontier.push(successorNode, curNode[2]+successor[2]+heuristic(successor[0], problem))
     explored.append(curNode[0])
   print "Error: no path from start state to goal state"
-                
-def getStatePathFromNode(givenNode):
-    """
-    return the path of the given node
-    """
-    givenNodePath = []
-    curNode = givenNode
-
-    while(curNode[0] != self.startState):
-        givenNodePath.append(curNode[1])
-        curNode = curNode[3]
-    givenNodePath.reverse()
-    return givenNodePath
 
 		
 def runMain():
@@ -214,14 +216,11 @@ def runMain():
     Test function to run all tests provided with project requirement
     documentation and a few more.
     """
-    ## Test 1
+    ## Test 1 - DFS Test
     print "nn Running Test 1 n"
-##    ws = "((on C B), (ontable B), (ontable A), (clear A), (clear C), (armempty))"
     ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
     s = BlocksWorldSolver()
-##    s.populateGoal(gs)
-##    s.populateWorld(ws)
     s.setStartState(ws)
     s.setGoalState(gs)
     
