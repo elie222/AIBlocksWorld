@@ -44,7 +44,7 @@ class BlocksWorldSolver:
                     continue
                 successor = pickUp(state,obj)
                 if not successor == None:
-                    successors.append((successor,"PICKUP: " + obj,1))                       
+                    successors.append((successor,"PICK UP " + obj,1))                       
         else:
             # put down the block that is currently being held and put it on top of a clear block or the table
             for obj in state:
@@ -52,11 +52,11 @@ class BlocksWorldSolver:
                     continue
                 successor = putDown(state,obj)
                 if not successor == None:
-                    successors.append((successor,"PUTDOWN: " + state["HOLDING"] + " ON: " + obj,1))
+                    successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON " + obj,1))
                     
             successor = putDown(state,"TABLE")
             if not successor == None:
-                successors.append((successor,"PUTDOWN: " + state["HOLDING"] + " ON: TABLE",1))
+                successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON TABLE",1))
 
         return successors
             
@@ -70,7 +70,7 @@ Returns None if the operation is illegal.
 obj is a string. (eg. "A" or "B")
 """
 def pickUp(state, obj):
-    print "\nPICK UP.\nstate:", state, "\nobj:", obj, "\n"
+##    print "\nPICK UP.\nstate:", state, "\nobj:", obj, "\n"
 
     if not state[obj]["clear"] or not state["HOLDING"] == None:
         return None
@@ -91,11 +91,10 @@ Returns None if the operation is illegal.
 obj is a string. (eg. "A" or "B" or "TABLE")
 """
 def putDown(state, obj):
-    print "\nPUT UP.\nstate:", state, "\nobj:", obj, "\n"
+##    print "\nPUT UP.\nstate:", state, "\nobj:", obj, "\n"
 
     if state["HOLDING"] == None:
         return None
-        #raise Exception("Not holding any objects")
     else:
         newState = copy.deepcopy(state)
         newState["HOLDING"] = None
@@ -148,8 +147,6 @@ def depthOrBreadthFirstSearch(problem, container):
         curNode = container.pop()
         if (problem.isGoalState(curNode[0])):
             return getStatePathFromNode(curNode, problem)
-##            print "FOUND PATH"
-##            return 0
         for successor in problem.getSuccessors(curNode[0]):
             if not successor[0] in visitedStates:
                 successorNode = (successor[0], successor[1], successor[2], curNode)
@@ -183,12 +180,12 @@ def uniformCostSearch(problem):
   "Search the node of least total cost first. "
   return aStarSearch(problem)
 
-def nullHeuristic():
-    """
-    A heuristic function estimates the cost from the current state to the nearest
-    goal in the provided SearchProblem.  This heuristic is trivial.
-    """
-    return 0
+def nullHeuristic(state, problem=None):
+  """
+  A heuristic function estimates the cost from the current state to the nearest
+  goal in the provided SearchProblem.  This heuristic is trivial.
+  """
+  return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
@@ -217,7 +214,7 @@ def runMain():
     documentation and a few more.
     """
     ## Test 1 - DFS Test
-    print "nn Running Test 1 n"
+    print "=== Running Test 1 - DFS ==="
     ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
     s = BlocksWorldSolver()
@@ -225,6 +222,36 @@ def runMain():
     s.setGoalState(gs)
     
     s.solve("DFS")
+
+    ## Test 2 - BFS Test
+    print "\n=== Running Test 2 - BFS ==="
+    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    
+    s.solve("BFS")
+
+    ## Test 3 - UCS Test
+    print "\n=== Running Test 3 - UCS ==="
+    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    
+    s.solve("UCS")
+
+    ## Test 4 - a* Test
+    print "\n=== Running Test 4 - A* ==="
+    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    
+    s.solve("aStar")
 
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
