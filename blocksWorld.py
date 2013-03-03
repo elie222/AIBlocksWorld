@@ -1,5 +1,6 @@
+import util
+
 class BlocksWorldSolver:
- 
     ## Initialization code
     def __init__(self):
  	"""
@@ -9,15 +10,15 @@ class BlocksWorldSolver:
 	self.goalState = {}
 	self.method = {"BFS": breadthFirstSearch, "DFS": depthFirstSearch, "UCS": uniformCostSearch, "aStar": aStarSearch}
 
-    def populateWorld(self):
-        return 0
-
-    def populateGoal(self):
-        return 0
-
     """
     Start and goal states have to be fully defined.
     """
+    def getStartState(self):
+        return self.startState
+
+    def getGoalState(self):
+        return self.goalState
+    
     def setStartState(self, state):
         self.startState = state
 
@@ -25,166 +26,167 @@ class BlocksWorldSolver:
         self.goalState = state
 
     def isGoalState(self, state):
-        if state == self.goalState:
+        if state == self.getGoalState():
             return True
         else:
             return False
-            
-    def solve(self, methodName):
-        self.method[methodName]()
+
+    def getSuccessors(self, state):
+        """
+        Returns successor states, the actions they require, and a cost of 1.
+        """
         
-    """
-    Algorithms
-    """
-    
-    def getStatePathFromNode(givenNode, problem):
-      """
-      return the path of the given node
-      """
-      givenNodePath = []
-      curNode = givenNode
-
-      while(curNode[0] != problem.getStartState()):
-        givenNodePath.append(curNode[1])
-        curNode = curNode[3]
-      givenNodePath.reverse()
-      return givenNodePath
-
-    def depthOrBreadthFirstSearch (problem, container):
-      """
-      preform the depthFirstSearch or the breadthFirstSearch
-      according to the given container
-      """
-      firstNode = (problem.getStartState(), None, 0, None)#state, action to reach, incremental cost, parent node
-      container.push(firstNode)
-      visitedStates = []
-      while (not container.isEmpty()):
-        curNode = container.pop()
-        if (problem.isGoalState(curNode[0])):
-          return getStatePathFromNode(curNode, problem)
-        for successor in problem.getSuccessors(curNode[0]):
-          if not successor[0] in visitedStates:
-            successorNode = (successor[0], successor[1], successor[2], curNode)
-            visitedStates.append(successor[0])
-            container.push(successorNode)
-      print "the algorithm didn't find a solution"
-
-    def depthFirstSearch(problem):
-      """
-      Search the deepest nodes in the search tree first [p 85].
-      
-      Your search algorithm needs to return a list of actions that reaches
-      the goal.  Make sure to implement a graph search algorithm [Fig. 3.7].
-      
-      To get started, you might want to try some of these simple commands to
-      understand the search problem that is being passed in:
-      
-      print "Start:", problem.getStartState()
-      print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-      print "Start's successors:", problem.getSuccessors(problem.getStartState())
-      """
-      container = util.Stack()  
-      return depthOrBreadthFirstSearch(problem, container)
-    
-    def breadthFirstSearch(problem):
-      "Search the shallowest nodes in the search tree first. [p 81]"
-      container = util.Queue()  
-      return depthOrBreadthFirstSearch(problem, container)
-
-    def uniformCostSearch(problem):
-      "Search the node of least total cost first. "
-      return aStarSearch(problem)
-
-    def nullHeuristic():
-        """
-        A heuristic function estimates the cost from the current state to the nearest
-        goal in the provided SearchProblem.  This heuristic is trivial.
-        """
-        return 0
-    
-    def aStarSearch(problem, heuristic=nullHeuristic):
-      "Search the node that has the lowest combined cost and heuristic first."
-      frontier = util.PriorityQueue()
-      explored = []
-      firstNode = (problem.getStartState(), None, 0, None)#state, action to reach, incremental cost, parent node
-      frontier.push(firstNode, 0)
-
-      while(not frontier.isEmpty()):
-        curNode = frontier.pop()
-        if(curNode[0] in explored):
-          continue
-        if(problem.isGoalState(curNode[0])):
-          return getStatePathFromNode(curNode, problem)
-        for successor in problem.getSuccessors(curNode[0]):
-          if(successor[0] not in explored):
-            successorNode = (successor[0], successor[1], curNode[2]+successor[2], curNode)
-            frontier.push(successorNode, curNode[2]+successor[2]+heuristic(successor[0], problem))
-        explored.append(curNode[0])
-      print "Error: no path from start state to goal state"
-            
-    def getSuccessors(state):
         successors = []
         if state["HOLDING"] == None:
             # pick up a block that is clear
             for obj in state:
                 if obj == "HOLDING":
                     continue
-                successors.append(pickUp(state,obj))                        
+                successors.append((pickUp(state,obj),"PICKUP",1))                        
         else:
             # put down the block that is currently being held and put it on top of a clear block or the table
             for obj in state:
                 if obj == "HOLDING":
                     continue
-                successors.append(putDown(state,obj))
+                successors.append((putDown(state,obj),"PUTDOWN",1))
 
         return successors
+            
+    def solve(self, methodName):
+        self.method[methodName](self)
 
-    """
-    Successor States
-    """
+"""
+Return the state we get to when we pick up obj from state.
+obj is a string. (eg. "A" or "B")
+"""
+def pickUp(state, obj):
+    if not state[obj]["clear"] or not state["HOLDING"] == None:
+        raise Exception("Cannot pick up", obj)
+    else:
+        newState = {}
+        newState = state
+        newState["HOLDING"] = obj
+        newState[obj]["on"] = None
+        newState[state[obj]["on"]]["clear"] = True
+        return newState
+"""
+Return the state we get to when we put down the object that is currently
+being held onto obj.
+obj is a string. (eg. "A" or "B")
+"""
+def putDown(state, obj):
+    if state["HOLDING"] == None:
+        raise Exception("Not holding any objects")
+    else:
+        newState = {}
+        newState = state
+        newState["HOLDING"] = None
+        newState[state["HOLDING"]]["on"] = obj
+        newState[obj]["clear"] = False
+        return newState
 
-    """
-    Return the state we get to when we pick up obj from state.
-    obj is a string. (eg. "A" or "B")
-    """
-    def pickUp(state, obj):
-        if not state[obj]["clear"] or not state["HOLDING"] == None:
-            raise Exception("Cannot pick up", obj)
-        else:
-            newState = {}
-            newState = state
-            newState["HOLDING"] = obj
-            newState[obj]["on"] = None
-            newState[state[obj]["on"]]["clear"] = True
-            return newState
-    """
-    Return the state we get to when we put down the object that is currently
-    being held onto obj.
-    obj is a string. (eg. "A" or "B")
-    """
-    def putDown(state, obj):
-        if state["HOLDING"] == None:
-            raise Exception("Not holding any objects")
-        else:
-            newState = {}
-            newState = state
-            newState["HOLDING"] = None
-            newState[state["HOLDING"]]["on"] = obj
-            newState[obj]["clear"] = False
-            return newState
-                    
-    def getStatePathFromNode(givenNode):
-        """
-        return the path of the given node
-        """
-        givenNodePath = []
-        curNode = givenNode
 
-        while(curNode[0] != self.startState):
-            givenNodePath.append(curNode[1])
-            curNode = curNode[3]
-        givenNodePath.reverse()
-        return givenNodePath
+"""
+Algorithms
+"""
+
+def getStatePathFromNode(givenNode, problem):
+  """
+  return the path of the given node
+  """
+  givenNodePath = []
+  curNode = givenNode
+
+  while(curNode[0] != problem.getStartState()):
+    givenNodePath.append(curNode[1])
+    curNode = curNode[3]
+  givenNodePath.reverse()
+  return givenNodePath
+
+def depthOrBreadthFirstSearch(problem, container):
+    """
+    preform the depthFirstSearch or the breadthFirstSearch
+    according to the given container
+    """
+    firstNode = (problem.getStartState(), None, 0, None)#state, action to reach, incremental cost, parent node
+    container.push(firstNode)
+    visitedStates = []
+    while (not container.isEmpty()):
+        curNode = container.pop()
+        if (problem.isGoalState(curNode[0])):
+            return getStatePathFromNode(curNode, problem)
+        for successor in problem.getSuccessors(curNode[0]):
+            if not successor[0] in visitedStates:
+                successorNode = (successor[0], successor[1], successor[2], curNode)
+                visitedStates.append(successor[0])
+                container.push(successorNode)
+    print "the algorithm didn't find a solution"
+
+def depthFirstSearch(problem):
+  """
+  Search the deepest nodes in the search tree first [p 85].
+  
+  Your search algorithm needs to return a list of actions that reaches
+  the goal.  Make sure to implement a graph search algorithm [Fig. 3.7].
+  
+  To get started, you might want to try some of these simple commands to
+  understand the search problem that is being passed in:
+  
+  print "Start:", problem.getStartState()
+  print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+  print "Start's successors:", problem.getSuccessors(problem.getStartState())
+  """
+  container = util.Stack()  
+  return depthOrBreadthFirstSearch(problem, container)
+
+def breadthFirstSearch(problem):
+  "Search the shallowest nodes in the search tree first. [p 81]"
+  container = util.Queue()  
+  return depthOrBreadthFirstSearch(problem, container)
+
+def uniformCostSearch(problem):
+  "Search the node of least total cost first. "
+  return aStarSearch(problem)
+
+def nullHeuristic():
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
+def aStarSearch(problem, heuristic=nullHeuristic):
+  "Search the node that has the lowest combined cost and heuristic first."
+  frontier = util.PriorityQueue()
+  explored = []
+  firstNode = (problem.getStartState(), None, 0, None)#state, action to reach, incremental cost, parent node
+  frontier.push(firstNode, 0)
+
+  while(not frontier.isEmpty()):
+    curNode = frontier.pop()
+    if(curNode[0] in explored):
+      continue
+    if(problem.isGoalState(curNode[0])):
+      return getStatePathFromNode(curNode, problem)
+    for successor in problem.getSuccessors(curNode[0]):
+      if(successor[0] not in explored):
+        successorNode = (successor[0], successor[1], curNode[2]+successor[2], curNode)
+        frontier.push(successorNode, curNode[2]+successor[2]+heuristic(successor[0], problem))
+    explored.append(curNode[0])
+  print "Error: no path from start state to goal state"
+                
+def getStatePathFromNode(givenNode):
+    """
+    return the path of the given node
+    """
+    givenNodePath = []
+    curNode = givenNode
+
+    while(curNode[0] != self.startState):
+        givenNodePath.append(curNode[1])
+        curNode = curNode[3]
+    givenNodePath.reverse()
+    return givenNodePath
 
 		
 def runMain():
