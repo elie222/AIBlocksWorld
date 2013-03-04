@@ -1,6 +1,14 @@
 import util
 import copy
 
+'''
+TODO:
+Heuristic functions for A*
+Solve the problem in other ways?
+Create more complicated tests
+GUI - using PyQt4 to do this.
+'''
+
 class BlocksWorldSolver:
     ## Initialization code
     def __init__(self):
@@ -60,9 +68,13 @@ class BlocksWorldSolver:
 
         return successors
             
-    def solve(self, methodName):
-        sol = self.method[methodName](self)
-        print sol
+    def solve(self, methodName, heuristic=None):
+        if heuristic == None:
+            sol = self.method[methodName](self)
+        else:
+            sol = self.method[methodName](self,heuristic)
+        print 'Solultion length:', len(sol)
+        print 'Solution:\n', sol
 
 """
 Return the state we get to when we pick up obj from state.
@@ -207,6 +219,30 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     explored.append(curNode[0])
   print "Error: no path from start state to goal state"
 
+def anotherHeuristic(state, problem):
+    '''
+    This heuristic calculates the no. of differences between the goal state and the current state.
+    '''
+    h = 0
+    goalState = problem.getGoalState()
+    for x in state:
+        if not state[x] == goalState[x]:
+            h += 1
+    print 'anotherHeuristic. h =', h 
+    return h
+
+def anotherHeuristic2(state, problem):
+    '''
+    This heuristic calculates the no. of differences between the goal state and the current state.
+    '''
+    h = 0
+    goalState = problem.getGoalState()
+    for x in state:
+        for y in state[x]:
+            if not state[x][y] == goalState[x][y]:
+                h += 1
+    print 'anotherHeuristic. h =', h 
+    return h
 		
 def runMain():
     """
@@ -244,14 +280,34 @@ def runMain():
     s.solve("UCS")
 
     ## Test 4 - a* Test
-    print "\n=== Running Test 4 - A* ==="
+    print "\n=== Running Test 4 - A* with with nullHeuristic (same as UCS) ==="
     ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
     
-    s.solve("aStar")
+    s.solve("aStar", heuristic=nullHeuristic)
+
+    ## Test 5 - a* Test with anotherHeuristic
+    print "\n=== Running Test 5 - A* with anotherHeuristic ==="
+    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    
+    s.solve("aStar", heuristic=anotherHeuristic)
+
+    ## Test 6 - a* Test with anotherHeuristic2
+##    print "\n=== Running Test 6 - A* with anotherHeuristic2 ==="
+##    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
+##    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+##    s = BlocksWorldSolver()
+##    s.setStartState(ws)
+##    s.setGoalState(gs)
+##    
+##    s.solve("aStar", heuristic=anotherHeuristic2)
 
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
