@@ -228,7 +228,7 @@ def anotherHeuristic(state, problem):
     for x in state:
         if not state[x] == goalState[x]:
             h += 1
-    print 'anotherHeuristic. h =', h 
+##    print 'anotherHeuristic. h =', h 
     return h
 
 def anotherHeuristic2(state, problem):
@@ -241,8 +241,16 @@ def anotherHeuristic2(state, problem):
         for y in state[x]:
             if not state[x][y] == goalState[x][y]:
                 h += 1
-    print 'anotherHeuristic. h =', h 
+##    print 'anotherHeuristic. h =', h 
     return h
+
+def test(name, ws, gs, method, heuristic=None):
+    print name
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+
+    s.solve(method, heuristic)
 		
 def runMain():
     """
@@ -250,14 +258,10 @@ def runMain():
     documentation and a few more.
     """
     ## Test 1 - DFS Test
-    print "=== Running Test 1 - DFS ==="
+    name = "=== Running Test 1 - DFS ==="
     ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
-    s = BlocksWorldSolver()
-    s.setStartState(ws)
-    s.setGoalState(gs)
-    
-    s.solve("DFS")
+    test(name, ws, gs, 'DFS')
 
     ## Test 2 - BFS Test
     print "\n=== Running Test 2 - BFS ==="
