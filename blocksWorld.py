@@ -2,7 +2,7 @@ import util
 import copy
 
 '''
-TODO:
+TODO: 
 Heuristic functions for A*
 Solve the problem in other ways?
 Create more complicated tests
