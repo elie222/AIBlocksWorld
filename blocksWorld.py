@@ -69,10 +69,10 @@ class BlocksWorldSolver:
                 successor = putDown(state,obj)
                 if not successor == None:
                     successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON " + obj,1))
-                    
-            successor = putDown(state,"TABLE")
-            if not successor == None:
-                successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON TABLE",1))
+            if tableIsFree(state, self.tableSpace):        
+				successor = putDown(state,"TABLE")
+				if not successor == None:
+					successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON TABLE",1))
 
         return successors
             
@@ -123,11 +123,25 @@ def putDown(state, obj):
             newState[obj]["under"] = state["HOLDING"]
         return newState
 
-
+def tableIsFree(state, maxSpace):
+	if maxSpace == "infinite":
+		return True
+	usedSpace = 0
+	for obj in state:
+		if obj == "HOLDING":
+			continue
+		if state[obj]["on"] == "TABLE":
+			usedSpace +=1
+	if usedSpace > maxSpace:
+		print "Error: exceeded table space"
+		return False
+	elif usedSpace == maxSpace:
+		return False
+	else:
+		return True
 """
 Algorithms
 """
-
 def getStatePathFromNode(givenNode, problem):
   """
   return the path of the given node
