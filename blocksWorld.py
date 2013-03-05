@@ -17,6 +17,8 @@ class BlocksWorldSolver:
 	"""
 	self.startState = {}
 	self.goalState = {}
+	self.cranesNum = 1
+	self.tableSpace = "infinite"
 	self.method = {"BFS": breadthFirstSearch, "DFS": depthFirstSearch, "UCS": uniformCostSearch, "aStar": aStarSearch}
 
     """
@@ -33,6 +35,12 @@ class BlocksWorldSolver:
 
     def setGoalState(self, state):
         self.goalState = state
+	### need to add the cranes to the state	
+	def setCranesNum(self, num):
+		self.cranesNum = num
+		
+	def setTableSpace(self, num):
+		self.tableSpace = num
 
     def isGoalState(self, state):
         if state == self.getGoalState():
@@ -84,7 +92,7 @@ obj is a string. (eg. "A" or "B")
 def pickUp(state, obj):
 ##    print "\nPICK UP.\nstate:", state, "\nobj:", obj, "\n"
 
-    if not state[obj]["clear"] or not state["HOLDING"] == None:
+    if not state[obj]["under"] == None or not state["HOLDING"] == None:
         return None
         #raise Exception("Cannot pick up", obj)
     else:
@@ -93,7 +101,7 @@ def pickUp(state, obj):
         newState[obj]["on"] = None
 
         if not state[obj]["on"] == "TABLE":
-            newState[state[obj]["on"]]["clear"] = True
+            newState[state[obj]["on"]]["under"] = None
 
         return newState
 """
@@ -112,7 +120,7 @@ def putDown(state, obj):
         newState["HOLDING"] = None
         newState[state["HOLDING"]]["on"] = obj
         if not obj == "TABLE":
-            newState[obj]["clear"] = False
+            newState[obj]["under"] = state["HOLDING"]
         return newState
 
 
@@ -259,14 +267,14 @@ def runMain():
     """
     ## Test 1 - DFS Test
     name = "=== Running Test 1 - DFS ==="
-    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
     test(name, ws, gs, 'DFS')
 
     ## Test 2 - BFS Test
     print "\n=== Running Test 2 - BFS ==="
-    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
@@ -275,8 +283,8 @@ def runMain():
 
     ## Test 3 - UCS Test
     print "\n=== Running Test 3 - UCS ==="
-    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
@@ -285,8 +293,8 @@ def runMain():
 
     ## Test 4 - a* Test
     print "\n=== Running Test 4 - A* with with nullHeuristic (same as UCS) ==="
-    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
@@ -295,23 +303,13 @@ def runMain():
 
     ## Test 5 - a* Test with anotherHeuristic
     print "\n=== Running Test 5 - A* with anotherHeuristic ==="
-    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
+    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
     
     s.solve("aStar", heuristic=anotherHeuristic)
-
-    ## Test 6 - a* Test with anotherHeuristic2
-##    print "\n=== Running Test 6 - A* with anotherHeuristic2 ==="
-##    ws = {"A": {"on": "TABLE", "clear": True}, "B": {"on": "TABLE", "clear": False}, "C": {"on": "B", "clear": True}, "HOLDING": None}
-##    gs = {'A': {'on': 'B', 'clear': True}, 'B': {'on': 'TABLE', 'clear': False}, 'C': {'on': 'TABLE', 'clear': True}, "HOLDING": None}
-##    s = BlocksWorldSolver()
-##    s.setStartState(ws)
-##    s.setGoalState(gs)
-##    
-##    s.solve("aStar", heuristic=anotherHeuristic2)
 
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
