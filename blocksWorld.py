@@ -36,11 +36,11 @@ class BlocksWorldSolver:
     def setGoalState(self, state):
         self.goalState = state
 	### need to add the cranes to the state	
-	def setCranesNum(self, num):
-		self.cranesNum = num
+    def setCranesNum(self, num):
+        self.cranesNum = num
 		
-	def setTableSpace(self, num):
-		self.tableSpace = num
+    def setTableSpace(self, num):
+        self.tableSpace = num
 
     def isGoalState(self, state):
         if state == self.getGoalState():
@@ -67,11 +67,11 @@ class BlocksWorldSolver:
                 if obj == "HOLDING":
                     continue
                 successor = putDown(state,obj)
-                if not successor == None:
+                if not successor is None:
                     successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON " + obj,1))
             if tableIsFree(state, self.tableSpace):        
 				successor = putDown(state,"TABLE")
-				if not successor == None:
+				if not successor is None:
 					successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON TABLE",1))
 
         return successors
@@ -116,15 +116,19 @@ obj is a string. (eg. "A" or "B" or "TABLE")
 def putDown(state, obj):
 ##    print "\nPUT UP.\nstate:", state, "\nobj:", obj, "\n"
 
-    if state["HOLDING"] == None:
-        return None
-    else:
-        newState = copy.deepcopy(state)
-        newState["HOLDING"] = None
-        newState[state["HOLDING"]]["on"] = obj
-        if not obj == "TABLE":
-            newState[obj]["under"] = state["HOLDING"]
-        return newState
+	if state["HOLDING"] == None:
+		return None
+	if not obj == "TABLE":
+		##print obj , " is under: " , state[obj]["under"]
+		if not state[obj]["under"] is None:
+			return None
+	else:
+		newState = copy.deepcopy(state)
+		newState["HOLDING"] = None
+		newState[state["HOLDING"]]["on"] = obj
+		if not obj == "TABLE":
+			newState[obj]["under"] = state["HOLDING"]
+		return newState
 
 def tableIsFree(state, maxSpace):
 	if maxSpace == "infinite":
@@ -325,8 +329,17 @@ def runMain():
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
+	
+	## Test 6 - table size check1
+    print "\n=== Running Test 6 - BFS with table size check1 ==="
+    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    s.setTableSpace(2)
     
-    s.solve("aStar", heuristic=anotherHeuristic)
+    s.solve("BFS")
 
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
