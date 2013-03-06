@@ -77,12 +77,12 @@ class BlocksWorldSolver:
         return successors
             
     def solve(self, methodName, heuristic=None):
-        if heuristic == None:
-            sol = self.method[methodName](self)
-        else:
-            sol = self.method[methodName](self,heuristic)
+		if heuristic == None:
+			sol = self.method[methodName](self)
+		else:
+			sol = self.method[methodName](self,heuristic)
 		if sol == "the algorithm didn't find a solution":
-			print "the algorithm didn't find a solution"
+			print sol
 		else:
 			print 'Solultion length:', len(sol)
 			print 'Solution:\n', sol
