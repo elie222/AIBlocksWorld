@@ -286,9 +286,11 @@ def test(name, ws, gs, method, heuristic=None):
     sol = s.solve(method, heuristic)
 
     if sol == None:
+        print 'node expanded: ' , s.getNodesExpandedNum()
         print "there is no solution to this problem"
     else:
-        print 'Solultion length:', len(sol)
+        print 'Solultion length: ', len(sol)
+        print 'node expanded: ' , s.getNodesExpandedNum()
         print 'Solution:\n', sol
 		
 def runMain():
@@ -337,9 +339,11 @@ def runMain():
     
     sol = s.solve("BFS")
     if sol == None:
+        print 'node expanded: ' , s.getNodesExpandedNum()
         print "there is no solution to this problem"
     else:
         print 'Solultion length:', len(sol)
+        print 'node expande: ' , s.getNodesExpandedNum()
         print 'Solution:\n', sol
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
