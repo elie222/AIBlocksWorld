@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 
 class Example(QtGui.QWidget):
@@ -14,6 +14,10 @@ class Example(QtGui.QWidget):
         
     def initUI(self):
 
+        #######################
+        ## layout
+        #######################
+
         #buttons
         buttonsLayout = QtGui.QGridLayout()
         buttonsLayout.setSpacing(10)
@@ -24,6 +28,9 @@ class Example(QtGui.QWidget):
         buttonsLayout.addWidget(addBlockButton, 1, 0)
         buttonsLayout.addWidget(solveButton, 2, 0)
 
+        vboxButtons = QtGui.QVBoxLayout()
+        vboxButtons.addWidget(addBlockButton)
+        vboxButtons.addWidget(solveButton)
 
         #problem
         problemLayout = QtGui.QGridLayout()
@@ -49,18 +56,33 @@ class Example(QtGui.QWidget):
         grid = QtGui.QGridLayout()
         grid.setSpacing(10)
 
-        grid.addLayout(buttonsLayout, 0, 0)
+##        grid.addLayout(buttonsLayout, 0, 0)
+        grid.addLayout(vboxButtons, 0, 0)
         grid.addLayout(problemLayout, 0, 1)
         grid.addLayout(solutionLayout, 1, 0, 1, 2)
 
-##        grid.setColumnMinimumWidth(0, 50)
-##        grid.setColumnMinimumWidth(1, 100)
+        grid.setColumnMinimumWidth(0, 100)
 
-        self.setLayout(grid)   
+        #######################
+        ## events
+        #######################
+
+## old API:
+##        addBlockButton.clicked.connect(self.buttonClicked)            
+##        solveButton.clicked.connect(self.buttonClicked)
+
+        QtCore.QObject.connect(addBlockButton, QtCore.SIGNAL('clicked()'), self.buttonClicked)
+        QtCore.QObject.connect(solveButton, QtCore.SIGNAL('clicked()'), self.buttonClicked)
+
+        self.setLayout(grid)
         
-        self.setGeometry(100, 100, 400, 300)
+        self.setGeometry(100, 100, 500, 300)
         self.setWindowTitle('Blocks World')    
         self.show()
+
+    def buttonClicked(self):      
+        sender = self.sender()
+        print sender.text(), 'was pressed'
         
 def main():
     
