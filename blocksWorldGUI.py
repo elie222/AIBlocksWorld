@@ -3,6 +3,7 @@
 
 import sys
 from PyQt4 import QtGui, QtCore
+import blocksWorld
 
 
 class Example(QtGui.QWidget):
@@ -19,17 +20,20 @@ class Example(QtGui.QWidget):
         #######################
 
         #buttons
-        buttonsLayout = QtGui.QGridLayout()
-        buttonsLayout.setSpacing(10)
+##        buttonsLayout = QtGui.QGridLayout()
+##        buttonsLayout.setSpacing(10)
 
         addBlockButton = QtGui.QPushButton('Add Block', self)
+        randomProblemButton = QtGui.QPushButton('Random Problem', self)
         solveButton = QtGui.QPushButton('Solve', self)
         
-        buttonsLayout.addWidget(addBlockButton, 1, 0)
-        buttonsLayout.addWidget(solveButton, 2, 0)
+##        buttonsLayout.addWidget(addBlockButton)
+##        buttonsLayout.addWidget(randomProblemButton)
+##        buttonsLayout.addWidget(solveButton)
 
         vboxButtons = QtGui.QVBoxLayout()
         vboxButtons.addWidget(addBlockButton)
+        vboxButtons.addWidget(randomProblemButton)
         vboxButtons.addWidget(solveButton)
 
         #problem
@@ -72,6 +76,7 @@ class Example(QtGui.QWidget):
 ##        solveButton.clicked.connect(self.buttonClicked)
 
         QtCore.QObject.connect(addBlockButton, QtCore.SIGNAL('clicked()'), self.buttonClicked)
+        QtCore.QObject.connect(randomProblemButton, QtCore.SIGNAL('clicked()'), self.buttonClicked)
         QtCore.QObject.connect(solveButton, QtCore.SIGNAL('clicked()'), self.buttonClicked)
 
         self.setLayout(grid)
@@ -82,7 +87,8 @@ class Example(QtGui.QWidget):
 
     def buttonClicked(self):      
         sender = self.sender()
-        print sender.text(), 'was pressed'
+        print sender, 'was pressed'
+            
         
 def main():
     
