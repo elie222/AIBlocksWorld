@@ -51,9 +51,10 @@ class BlocksWorldSolver:
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
-        """        
+        """  
+        ##print "state: \n" , state
         successors = []
-        if state["HOLDING"] == None:
+        if state["HOLDING"] is None:
             # pick up a block that is clear
             for obj in state:
                 if obj == "HOLDING":
@@ -73,7 +74,7 @@ class BlocksWorldSolver:
 				successor = putDown(state,"TABLE")
 				if not successor is None:
 					successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON TABLE",1))
-
+        ##print "successors: \n" , successors    
         return successors
             
     def solve(self, methodName, heuristic=None):
@@ -81,7 +82,7 @@ class BlocksWorldSolver:
 			sol = self.method[methodName](self)
 		else:
 			sol = self.method[methodName](self,heuristic)
-		if sol == "the algorithm didn't find a solution":
+		if sol == "there is no solution to this problem":
 			print sol
 		else:
 			print 'Solultion length:', len(sol)
@@ -116,13 +117,15 @@ obj is a string. (eg. "A" or "B" or "TABLE")
 def putDown(state, obj):
 ##    print "\nPUT UP.\nstate:", state, "\nobj:", obj, "\n"
 
-	if state["HOLDING"] == None:
+	if state["HOLDING"] == None or obj == state["HOLDING"]:
 		return None
-	if not obj == "TABLE":
-		##print obj , " is under: " , state[obj]["under"]
-		if not state[obj]["under"] is None:
-			return None
 	else:
+		if not obj == "TABLE": 
+			##print "state[HOLDING] = " , state["HOLDING"]
+			##print obj , " is under: " , state[obj]["under"]
+			if not (state[obj]["under"] == None):
+				##print "in if: " , obj , " is under: " , state[obj]["under"]
+				return None
 		newState = copy.deepcopy(state)
 		newState["HOLDING"] = None
 		newState[state["HOLDING"]]["on"] = obj
@@ -193,7 +196,7 @@ def depthOrBreadthFirstSearch(problem, container):
                 successorNode = (successor[0], successor[1], successor[2], curNode)
                 visitedStates.append(successor[0])
                 container.push(successorNode)
-    return "the algorithm didn't find a solution"
+    return "there is no solution to this problem"
 
 def depthFirstSearch(problem):
   """
@@ -246,7 +249,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         successorNode = (successor[0], successor[1], curNode[2]+successor[2], curNode)
         frontier.push(successorNode, curNode[2]+successor[2]+heuristic(successor[0], problem))
     explored.append(curNode[0])
-  return "the algorithm didn't find a solution"
+  return "there is no solution to this problem"
 
 def anotherHeuristic(state, problem):
     '''
@@ -329,6 +332,7 @@ def runMain():
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
+    s.solve("aStar", heuristic=anotherHeuristic)
 	
 	## Test 6 - table size check1
     print "\n=== Running Test 6 - BFS with table size check1 ==="
@@ -340,7 +344,6 @@ def runMain():
     s.setTableSpace(2)
     
     s.solve("BFS")
-
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
 ##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
