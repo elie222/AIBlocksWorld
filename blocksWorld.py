@@ -82,8 +82,8 @@ class BlocksWorldSolver:
 			sol = self.method[methodName](self)
 		else:
 			sol = self.method[methodName](self,heuristic)
-		if sol == "there is no solution to this problem":
-			print sol
+		if sol == None:
+			print "there is no solution to this problem"
 		else:
 			print 'Solultion length:', len(sol)
 			print 'Solution:\n', sol
@@ -196,7 +196,7 @@ def depthOrBreadthFirstSearch(problem, container):
                 successorNode = (successor[0], successor[1], successor[2], curNode)
                 visitedStates.append(successor[0])
                 container.push(successorNode)
-    return "there is no solution to this problem"
+    return None
 
 def depthFirstSearch(problem):
   """
@@ -249,7 +249,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         successorNode = (successor[0], successor[1], curNode[2]+successor[2], curNode)
         frontier.push(successorNode, curNode[2]+successor[2]+heuristic(successor[0], problem))
     explored.append(curNode[0])
-  return "there is no solution to this problem"
+  return None
 
 def anotherHeuristic(state, problem):
     '''
