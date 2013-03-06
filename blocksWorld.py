@@ -303,55 +303,31 @@ def runMain():
     test(name, ws, gs, 'DFS')
 
     ## Test 2 - BFS Test
-    print "\n=== Running Test 2 - BFS ==="
+    name =  "\n=== Running Test 2 - BFS ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    s = BlocksWorldSolver()
-    s.setStartState(ws)
-    s.setGoalState(gs)
-    
-    s.solve("BFS")
+    test(name, ws, gs, 'BFS')
 	
     ## Test 3 - UCS Test
-    print "\n=== Running Test 3 - UCS ==="
+    name = "\n=== Running Test 3 - UCS ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    s = BlocksWorldSolver()
-    s.setStartState(ws)
-    s.setGoalState(gs)
-    
-    s.solve("UCS")
-
-    ## Test 4 - a* Test
-    print "\n=== Running Test 4 - A* with with nullHeuristic (same as UCS) ==="
-    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    s = BlocksWorldSolver()
-    s.setStartState(ws)
-    s.setGoalState(gs)
-    
-    s.solve("aStar", heuristic=nullHeuristic)
+    test(name, ws, gs, 'UCS')
 
     ## Test 5 - a* Test with blocksInPlacerHeuristic
-    print "\n=== Running Test 5 - A* with blocksInPlacerHeuristic ==="
+    name = "\n=== Running Test 5 - A* with blocksInPlacerHeuristic ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    s = BlocksWorldSolver()
-    s.setStartState(ws)
-    s.setGoalState(gs)
-    s.solve("aStar", heuristic=blocksInPlacerHeuristic)
+    test(name, ws, gs, "aStar", heuristic=blocksInPlacerHeuristic)
 	
     ## Test 6 - a* Test with goalStateDiffrencesHeuristic
-    print "\n=== Running Test 6 - A* with goalStateDiffrencesHeuristic ==="
+    name = "\n=== Running Test 6 - A* with goalStateDiffrencesHeuristic ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    s = BlocksWorldSolver()
-    s.setStartState(ws)
-    s.setGoalState(gs)
-    s.solve("aStar", heuristic=goalStateDiffrencesHeuristic)	
+    test(name, ws, gs, "aStar", heuristic=goalStateDiffrencesHeuristic)\
 	
 	## Test 7 - table size check1
-    print "\n=== Running Test 6 - BFS with table size check1 ==="
+    print "\n=== Running Test 7 - BFS with table size check1 ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
     s = BlocksWorldSolver()
@@ -359,7 +335,12 @@ def runMain():
     s.setGoalState(gs)
     s.setTableSpace(2)
     
-    s.solve("BFS")
+    sol = s.solve("BFS")
+    if sol == None:
+        print "there is no solution to this problem"
+    else:
+        print 'Solultion length:', len(sol)
+        print 'Solution:\n', sol
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
 ##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
