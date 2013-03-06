@@ -17,7 +17,7 @@ class BlocksWorldSolver:
 	"""
 	self.startState = {}
 	self.goalState = {}
-	self.cranesNum = 1
+	self.nodesExpanded = 0
 	self.tableSpace = "infinite"
 	self.method = {"BFS": breadthFirstSearch, "DFS": depthFirstSearch, "UCS": uniformCostSearch, "aStar": aStarSearch}
 
@@ -27,6 +27,9 @@ class BlocksWorldSolver:
     def getStartState(self):
         return self.startState
 
+    def getNodesExpandedNum(self):
+        return self.nodesExpanded
+
     def getGoalState(self):
         return self.goalState
     
@@ -35,10 +38,7 @@ class BlocksWorldSolver:
 
     def setGoalState(self, state):
         self.goalState = state
-	### need to add the cranes to the state	
-    def setCranesNum(self, num):
-        self.cranesNum = num
-		
+
     def setTableSpace(self, num):
         self.tableSpace = num
 
@@ -74,7 +74,8 @@ class BlocksWorldSolver:
 				successor = putDown(state,"TABLE")
 				if not successor is None:
 					successors.append((successor,"PUT DOWN " + state["HOLDING"] + " ON TABLE",1))
-        ##print "successors: \n" , successors    
+        ##print "successors: \n" , successors  
+        self.nodesExpanded +=1
         return successors
             
     def solve(self, methodName, heuristic=None):
@@ -82,11 +83,7 @@ class BlocksWorldSolver:
 			sol = self.method[methodName](self)
 		else:
 			sol = self.method[methodName](self,heuristic)
-		if sol == None:
-			print "there is no solution to this problem"
-		else:
-			print 'Solultion length:', len(sol)
-			print 'Solution:\n', sol
+		return sol
 
 """
 Return the state we get to when we pick up obj from state.
@@ -251,7 +248,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     explored.append(curNode[0])
   return None
 
-def anotherHeuristic(state, problem):
+def blocksInPlacerHeuristic(state, problem):
     '''
     This heuristic calculates the no. of differences between the goal state and the current state.
     '''
@@ -260,19 +257,23 @@ def anotherHeuristic(state, problem):
     for x in state:
         if not state[x] == goalState[x]:
             h += 1
-##    print 'anotherHeuristic. h =', h 
+##    print 'blocksInPlacerHeuristic. h =', h 
     return h
 
-def anotherHeuristic2(state, problem):
+def goalStateDiffrencesHeuristic(state, problem):
     '''
     This heuristic calculates the no. of differences between the goal state and the current state.
     '''
     h = 0
     goalState = problem.getGoalState()
     for x in state:
-        for y in state[x]:
-            if not state[x][y] == goalState[x][y]:
-                h += 1
+		if not x == "HOLDING":
+			for y in state[x]:
+				if not state[x][y] == goalState[x][y]:
+					h += 1
+		else:
+			if not state[x] == goalState[x]:
+				h += 1
 ##    print 'anotherHeuristic. h =', h 
     return h
 
@@ -282,7 +283,13 @@ def test(name, ws, gs, method, heuristic=None):
     s.setStartState(ws)
     s.setGoalState(gs)
 
-    s.solve(method, heuristic)
+    sol = s.solve(method, heuristic)
+
+    if sol == None:
+        print "there is no solution to this problem"
+    else:
+        print 'Solultion length:', len(sol)
+        print 'Solution:\n', sol
 		
 def runMain():
     """
@@ -304,7 +311,7 @@ def runMain():
     s.setGoalState(gs)
     
     s.solve("BFS")
-
+	
     ## Test 3 - UCS Test
     print "\n=== Running Test 3 - UCS ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
@@ -325,16 +332,25 @@ def runMain():
     
     s.solve("aStar", heuristic=nullHeuristic)
 
-    ## Test 5 - a* Test with anotherHeuristic
-    print "\n=== Running Test 5 - A* with anotherHeuristic ==="
+    ## Test 5 - a* Test with blocksInPlacerHeuristic
+    print "\n=== Running Test 5 - A* with blocksInPlacerHeuristic ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
     s = BlocksWorldSolver()
     s.setStartState(ws)
     s.setGoalState(gs)
-    s.solve("aStar", heuristic=anotherHeuristic)
+    s.solve("aStar", heuristic=blocksInPlacerHeuristic)
 	
-	## Test 6 - table size check1
+    ## Test 6 - a* Test with goalStateDiffrencesHeuristic
+    print "\n=== Running Test 6 - A* with goalStateDiffrencesHeuristic ==="
+    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
+    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    s.solve("aStar", heuristic=goalStateDiffrencesHeuristic)	
+	
+	## Test 7 - table size check1
     print "\n=== Running Test 6 - BFS with table size check1 ==="
     ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
     gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
