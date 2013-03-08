@@ -294,7 +294,7 @@ def pickingNeededHeuristic(state, problem):
     pickingSet = set([])
     goalState = problem.getGoalState()
     for x in state:
-        if not x == "HOLDING":
+        if not x == "HOLDING" and not state["HOLDING"] == x:
             if  not x in pickingSet:
                 if not state[x]["on"] == goalState[x]["on"]:
                     h += pickingNeeded(state, pickingSet, x)
@@ -302,6 +302,47 @@ def pickingNeededHeuristic(state, problem):
     h= 2*h
     if not state["HOLDING"] is None:
         h += 1 
+    return h
+    
+    
+def getStandingOn(state, block):
+    retVal = set([])
+    curBlock = state[block]["on"]
+    while (not curBlock is "TABLE"):
+        retVal.add(curBlock)
+        curBlock = state[curBlock]["on"]
+    return retVal
+   
+def pickingTwiceNeeded(problem, state, block):
+    nowStandingOnState= getStandingOn(state, block)
+    gsStandingOnState= getStandingOn(problem.getGoalState(), block)
+    if len(nowStandingOnState.intersection(gsStandingOnState)) > 0:
+        return True
+    return False
+    
+
+def improvedPickingNeededHeuristic(state, problem):
+    '''
+    This heuristic calculates the no. of differences between the goal state and the current state.
+    '''
+    h = 0
+    pickingSet = set([])
+    goalState = problem.getGoalState()
+    for x in state:
+        if not x == "HOLDING" and not state["HOLDING"] == x:
+            if  not x in pickingSet:
+                if not state[x]["on"] == goalState[x]["on"]:
+                    h += pickingNeeded(state, pickingSet, x)
+
+    h= 2*h
+    if not state["HOLDING"] is None:
+        h += 1 
+    
+    pickTwiceSet = set([])
+    for y in pickingSet:
+        if pickingTwiceNeeded(problem, state, y):
+            pickTwiceSet.add(y)
+            h +=2
     return h
     
 def test(name, ws, gs, method, heuristic=None):
@@ -381,10 +422,18 @@ def runMain():
     test(name, ws, gs, "aStar", heuristic=pickingNeededHeuristic)
     
     ## Test picHeuristic
-    name = "\n=== Running Test 8 - A* with goalStateDiffrencesHeuristic ==="
+    name = "\n=== Running Test 9 - A* with goalStateDiffrencesHeuristic ==="
     ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
     gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
     test(name, ws, gs, "aStar", heuristic=goalStateDiffrencesHeuristic)
+    
+    
+    ## Test improvedPickingNeededHeuristic
+    name = "\n=== Running Test 10 - A* with improvedPickingNeededHeuristic ==="
+    ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
+    gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
+    test(name, ws, gs, "aStar", heuristic=improvedPickingNeededHeuristic)
+    
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
 ##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
