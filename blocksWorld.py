@@ -277,6 +277,33 @@ def goalStateDiffrencesHeuristic(state, problem):
 ##    print 'anotherHeuristic. h =', h 
     return h
 
+    
+def pickingNeeded(state, pickingSet, curBlock):
+    retVal = 0
+    while (not curBlock in pickingSet) and (not curBlock is None):
+        pickingSet.add(curBlock)
+        retVal +=1
+        curBlock = state[curBlock]["under"]
+    return retVal
+
+def pickingNeededHeuristic(state, problem):
+    '''
+    This heuristic calculates the no. of differences between the goal state and the current state.
+    '''
+    h = 0
+    pickingSet = set([])
+    goalState = problem.getGoalState()
+    for x in state:
+        if not x == "HOLDING":
+            if  not x in pickingSet:
+                if not state[x]["on"] == goalState[x]["on"]:
+                    h += pickingNeeded(state, pickingSet, x)
+
+    h= 2*h
+    if not state["HOLDING"] is None:
+        h += 1 
+    return h
+    
 def test(name, ws, gs, method, heuristic=None):
     print name
     s = BlocksWorldSolver()
@@ -297,6 +324,7 @@ def runMain():
     """
     Test function to run all tests provided with project requirement
     documentation and a few more.
+    """
     """
     ## Test 1 - DFS Test
     name = "=== Running Test 1 - DFS ==="
@@ -345,6 +373,18 @@ def runMain():
         print 'Solultion length:', len(sol)
         print 'node expande: ' , s.getNodesExpandedNum()
         print 'Solution:\n', sol
+    """
+    ## Test picHeuristic
+    name = "\n=== Running Test 8 - A* with pickingNeededHeuristic ==="
+    ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
+    gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
+    test(name, ws, gs, "aStar", heuristic=pickingNeededHeuristic)
+    
+    ## Test picHeuristic
+    name = "\n=== Running Test 8 - A* with goalStateDiffrencesHeuristic ==="
+    ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
+    gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
+    test(name, ws, gs, "aStar", heuristic=goalStateDiffrencesHeuristic)
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
 ##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
