@@ -19,7 +19,7 @@ class BlocksWorldSolver:
 	self.goalState = {}
 	self.nodesExpanded = 0
 	self.tableSpace = "infinite"
-	self.method = {"BFS": breadthFirstSearch, "DFS": depthFirstSearch, "UCS": uniformCostSearch, "aStar": aStarSearch}
+	self.method = {"BFS": breadthFirstSearch, "DFS": depthFirstSearch, "UCS": uniformCostSearch, "aStar": aStarSearch, "SA":  simulateAnnealing}
 
     """
     Start and goal states have to be fully defined.
@@ -345,6 +345,23 @@ def improvedPickingNeededHeuristic(state, problem):
             h +=2
     return h
     
+def simulateAnnealing(problem,valHeuristic=goalStateDiffrencesHeuristic):
+    temp_start = 10000
+    temp = temp_start
+    temp_end = 10
+    coolingFactor = 0.99
+    curState = problem.getStartState()
+    while temp > temp_end:
+        successors = problem.getSuccessors(curState)
+        randSuccessor =  randint(0, len(successors)-1)
+        if valHeuristic(randSuccessor, problem) - valHeuristic(curState, problem) > 0:
+            curState = randSuccessor
+        else:
+            prob = exp(-difference / temp)
+             if prob > uniform(0,1):
+                curState = randSuccessor
+        temp = temp * coolingFactor
+    return reverse########need to fix
 def test(name, ws, gs, method, heuristic=None):
     print name
     s = BlocksWorldSolver()
