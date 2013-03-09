@@ -1,5 +1,7 @@
 import util
 import copy
+from random import sample, randint, uniform
+from math import exp
 
 '''
 TODO: 
@@ -349,19 +351,30 @@ def simulateAnnealing(problem,valHeuristic=goalStateDiffrencesHeuristic):
     temp_start = 10000
     temp = temp_start
     temp_end = 10
-    coolingFactor = 0.99
+    coolingFactor = 0.4
     curState = problem.getStartState()
+    curNode = (problem.getStartState(), None, 0, None)#state, action to reach, incremental cost, parent node
     while temp > temp_end:
-        successors = problem.getSuccessors(curState)
-        randSuccessor =  randint(0, len(successors)-1)
-        if valHeuristic(randSuccessor, problem) - valHeuristic(curState, problem) > 0:
+        successors = problem.getSuccessors(curNode[0])
+        randSuccessor =  sample(successors, 1)[0]
+
+        successorNode = (randSuccessor[0], randSuccessor[1], curNode[2]+randSuccessor[2], curNode)
+        ##print "rand: " , randSuccessor[0], "\n"
+        ##print "cur: " , curState[0], "\n"
+        difference = valHeuristic(randSuccessor[0], problem) - valHeuristic(curNode[0], problem)
+        if difference > 0:
             curState = randSuccessor
+            curNode = successorNode
         else:
             prob = exp(-difference / temp)
-             if prob > uniform(0,1):
+            if prob > uniform(0,1):
                 curState = randSuccessor
+                curNode = successorNode
         temp = temp * coolingFactor
-    return reverse########need to fix
+    return getStatePathFromNode(curNode, problem)
+    
+    
+
 def test(name, ws, gs, method, heuristic=None):
     print name
     s = BlocksWorldSolver()
@@ -450,6 +463,13 @@ def runMain():
     ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
     gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
     test(name, ws, gs, "aStar", heuristic=improvedPickingNeededHeuristic)
+    
+    
+    ## Test simulateAnnealing
+    name = "\n=== Running Test 10 - A* with simulateAnnealing ==="
+    ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
+    gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
+    test(name, ws, gs, "SA")
     
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
