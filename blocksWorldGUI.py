@@ -3,7 +3,7 @@
 
 import sys
 from PyQt4 import QtGui, QtCore
-import blocksWorld
+from blocksWorld import BlocksWorldSolver
 
 
 class Example(QtGui.QWidget):
@@ -41,10 +41,10 @@ class Example(QtGui.QWidget):
         problemLayout.setSpacing(10)
 
         problemLabel = QtGui.QLabel('Define The Problem To Solve')
-        problem = QtGui.QTextEdit()
+        self.problem = QtGui.QTextEdit()
 
         problemLayout.addWidget(problemLabel, 0, 0)
-        problemLayout.addWidget(problem, 1, 0)
+        problemLayout.addWidget(self.problem, 1, 0)
 
         #solution
         solutionLayout = QtGui.QGridLayout()
@@ -87,7 +87,18 @@ class Example(QtGui.QWidget):
 
     def buttonClicked(self):      
         sender = self.sender()
-        print sender, 'was pressed'
+        print sender.text(), 'was pressed'
+        if sender.text() == 'Solve':
+            s = BlocksWorldSolver()
+            ws = self.problem.getText()
+            gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
+            s.setStartState(ws)
+            s.setGoalState(gs)
+
+            sol = s.solve("aStar", heuristic=anotherHeuristic)
+
+            self.solution.setText(str(sol))
+
             
         
 def main():
