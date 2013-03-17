@@ -347,6 +347,41 @@ def improvedPickingNeededHeuristic(state, problem):
             h +=2
     return h
     
+def blockHaveMutualPrevention (problem, state, goalState, curCheckedForLockSet, block):
+    curCheckedForLockSet = set([]) 
+    
+def mutualPreventionImprovedPickingNeededHeuristic(state, problem):
+    '''
+    This heuristic calculates the no. of differences between the goal state and the current state.
+    '''
+    h = 0
+    pickingSet = set([])
+    goalState = problem.getGoalState()
+    for x in state:
+        if not x == "HOLDING" and not state["HOLDING"] == x:
+            if  not x in pickingSet:
+                if not state[x]["on"] == goalState[x]["on"]:
+                    h += pickingNeeded(state, pickingSet, x)
+
+    h= 2*h
+    if not state["HOLDING"] is None:
+        h += 1 
+    
+    pickTwiceSet = set([])
+    for y in pickingSet:
+        if pickingTwiceNeeded(problem, state, y):
+            pickTwiceSet.add(y)
+            h +=2
+    
+    checkedForLockSet = set([]) 
+    curCheckedForLockSet = set([])    
+    for z in pickingSet:
+        if z not in checkedForLockSet:
+            if blockHaveMutualPrevention(problem, state, goalState, curCheckedForLockSet, z):
+                if curCheckedForLockSet.isdisjoint(pickTwiceSet)
+                    h +=2
+    return h
+    
 def simulateAnnealing(problem,valHeuristic=goalStateDiffrencesHeuristic):
     temp_start = 10000
     temp = temp_start
