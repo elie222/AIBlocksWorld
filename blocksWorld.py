@@ -310,7 +310,8 @@ def pickingNeededHeuristic(state, problem):
 def getStandingOn(state, block):
     retVal = set([])
     curBlock = state[block]["on"]
-    while (not curBlock is "TABLE"):
+    #print curBlock
+    while (not curBlock == "TABLE"):
         retVal.add(curBlock)
         curBlock = state[curBlock]["on"]
     return retVal
@@ -347,8 +348,15 @@ def improvedPickingNeededHeuristic(state, problem):
             h +=2
     return h
     
-def blockHaveMutualPrevention (problem, state, goalState, curCheckedForLockSet, block):
+def blockHaveMutualPrevention (problem, curState, goalState, curCheckedForLockSet, block):
     curCheckedForLockSet = set([]) 
+    while (True):
+        curCheckedForLockSet.add(block)
+        block = goalState[goalState[block]["on"]]["under"]
+        if block in curCheckedForLockSet:
+            return True
+        if goalState[goalState[block]["on"]]["under"] is None:
+            return False            
     
 def mutualPreventionImprovedPickingNeededHeuristic(state, problem):
     '''
@@ -368,6 +376,8 @@ def mutualPreventionImprovedPickingNeededHeuristic(state, problem):
         h += 1 
     
     pickTwiceSet = set([])
+    #print pickingSet
+    #print state
     for y in pickingSet:
         if pickingTwiceNeeded(problem, state, y):
             pickTwiceSet.add(y)
@@ -378,10 +388,41 @@ def mutualPreventionImprovedPickingNeededHeuristic(state, problem):
     for z in pickingSet:
         if z not in checkedForLockSet:
             if blockHaveMutualPrevention(problem, state, goalState, curCheckedForLockSet, z):
-                if curCheckedForLockSet.isdisjoint(pickTwiceSet)
+                checkedForLockSet= checkedForLockSet | curCheckedForLockSet
+                if curCheckedForLockSet.isdisjoint(pickTwiceSet):
                     h +=2
     return h
     
+    
+def mutualPreventionPickingNeededHeuristic(state, problem):
+    '''
+    This heuristic calculates the no. of differences between the goal state and the current state.
+    '''
+    h = 0
+    pickingSet = set([])
+    goalState = problem.getGoalState()
+    for x in state:
+        if not x == "HOLDING" and not state["HOLDING"] == x:
+            if  not x in pickingSet:
+                if not state[x]["on"] == goalState[x]["on"]:
+                    h += pickingNeeded(state, pickingSet, x)
+
+    h= 2*h
+    if not state["HOLDING"] is None:
+        h += 1 
+    
+    checkedForLockSet = set([]) 
+    curCheckedForLockSet = set([])
+    #print state
+    #print pickingSet
+    for z in pickingSet:
+        if z not in checkedForLockSet:
+            if blockHaveMutualPrevention(problem, state, goalState, curCheckedForLockSet, z):
+                #print curCheckedForLockSet
+                checkedForLockSet= checkedForLockSet | curCheckedForLockSet
+                #print checkedForLockSet
+                h +=2
+    return h
 def simulateAnnealing(problem,valHeuristic=goalStateDiffrencesHeuristic):
     temp_start = 10000
     temp = temp_start
@@ -505,6 +546,24 @@ def runMain():
     ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
     gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
     test(name, ws, gs, "SA")
+    
+    ## Test mutualPreventionImprovedPickingNeededHeuristic
+    name = "\n=== Running Test 10 - A* with mutualPreventionImprovedPickingNeededHeuristic ==="
+    ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
+    gs = {"A": {"on": "B", "under": None}, "B": {"on": "C", "under": "A"}, "C": {"on": "D", "under": "B"}, "D": {"on": "E", "under": "C"}, "E": {"on": "TABLE", "under": "D"},"HOLDING": None}
+    test(name, ws, gs, "aStar", heuristic=mutualPreventionImprovedPickingNeededHeuristic)
+
+    ## Test mutualPreventionImprovedPickingNeededHeuristic
+    name = "\n=== Running Test 11 - A* with mutualPreventionImprovedPickingNeededHeuristic ==="
+    ws = {"A": {"on": "C", "under": None}, "B": {"on": "D", "under": None}, "C": {"on": "TABLE", "under": "A"}, "D": {"on": "TABLE", "under": "B"},"HOLDING": None}
+    gs = {"A": {"on": "D", "under": None}, "B": {"on": "C", "under": None}, "C": {"on": "TABLE", "under": "B"}, "D": {"on": "TABLE", "under": "A"},"HOLDING": None}
+    test(name, ws, gs, "aStar", heuristic=mutualPreventionImprovedPickingNeededHeuristic)
+    
+    ## Test mutualPreventionPickingNeededHeuristic
+    name = "\n=== Running Test 12 - A* with mutualPreventionPickingNeededHeuristic ==="
+    ws = {"A": {"on": "C", "under": None}, "B": {"on": "D", "under": None}, "C": {"on": "TABLE", "under": "A"}, "D": {"on": "TABLE", "under": "B"},"HOLDING": None}
+    gs = {"A": {"on": "D", "under": None}, "B": {"on": "C", "under": None}, "C": {"on": "TABLE", "under": "B"}, "D": {"on": "TABLE", "under": "A"},"HOLDING": None}
+    test(name, ws, gs, "aStar", heuristic=mutualPreventionPickingNeededHeuristic)
     
 ##    ## Test 2
 ##    print "nn Running Test 2 n"
