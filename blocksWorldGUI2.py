@@ -40,112 +40,130 @@ class BW(QMainWindow):
 
         hboxTableSize = QHBoxLayout()
         hboxTableSize.addWidget(tableSizeTitleLabel)
-	hboxTableSize.addWidget(self.tableSizeSlider)
-	hboxTableSize.addWidget(self.tableSizeLabel)
+    	hboxTableSize.addWidget(self.tableSizeSlider)
+    	hboxTableSize.addWidget(self.tableSizeLabel)
 
-	#start state
-	startStateLabel = QLabel('Start State', self)
-        self.addButton = QPushButton('Place new block on:', self)
-        self.addComboBox = QComboBox(self)
+    	#start state
+    	startStateLabel = QLabel('Start State', self)
+        self.addStartButton = QPushButton('Place new block on:', self)
+        self.addComboBoxStart = QComboBox(self)
         separatorLabel = QLabel('|')
         separatorLabel.setMaximumSize(5,20)
-        self.removeButton = QPushButton('Remove', self)
+        self.removeStartButton = QPushButton('Remove', self)
         self.removeComboBoxStart = QComboBox(self)
         
         hboxAddRemoveStart = QHBoxLayout()
         hboxAddRemoveStart.addWidget(startStateLabel)
-        hboxAddRemoveStart.addWidget(self.addButton)
-	hboxAddRemoveStart.addWidget(self.addComboBox)
-	hboxAddRemoveStart.addWidget(separatorLabel)
-	hboxAddRemoveStart.addWidget(self.removeButton)
-	hboxAddRemoveStart.addWidget(self.removeComboBoxStart)
+        hboxAddRemoveStart.addWidget(self.addStartButton)
+    	hboxAddRemoveStart.addWidget(self.addComboBoxStart)
+    	hboxAddRemoveStart.addWidget(separatorLabel)
+    	hboxAddRemoveStart.addWidget(self.removeStartButton)
+    	hboxAddRemoveStart.addWidget(self.removeComboBoxStart)
 
-	self.updateAddComboBox()
+    	self.updateAddComboBoxStart()
+        self.updateRemoveComboBoxStart()
 	
         self.startBoard = Board(self, self.startBlocks)
 
-	hboxProbStart = QHBoxLayout()
-	hboxProbStart.addWidget(self.startBoard)
-	hboxProbStart.addStrut(200)
+    	hboxProbStart = QHBoxLayout()
+    	hboxProbStart.addWidget(self.startBoard)
+    	hboxProbStart.addStrut(200)
 
-	#end (goal) state
+    	#end (goal) state
         endStateLabel = QLabel('Goal State', self)
-        self.addButtonEnd = QPushButton('Place', self)
+        self.addEndButton = QPushButton('Place', self)
         self.addComboBoxEnd = QComboBox(self)
         endOnLabel = QLabel('on', self)
+        endOnLabel.setMaximumSize(20,20)
         self.onComboBoxEnd = QComboBox(self)
         separatorLabel = QLabel('|')
         separatorLabel.setMaximumSize(5,20)
-        self.removeButtonEnd = QPushButton('Remove', self)
+        self.removeEndButton = QPushButton('Remove', self)
         self.removeComboBoxEnd = QComboBox(self)
 
         hboxAddRemoveEnd = QHBoxLayout()
         hboxAddRemoveEnd.addWidget(endStateLabel)
-        hboxAddRemoveEnd.addWidget(self.addButtonEnd)
-	hboxAddRemoveEnd.addWidget(self.addComboBoxEnd)
-	hboxAddRemoveEnd.addWidget(endOnLabel)
-	hboxAddRemoveEnd.addWidget(self.onComboBoxEnd)
-	hboxAddRemoveEnd.addWidget(separatorLabel)
-	hboxAddRemoveEnd.addWidget(self.removeButtonEnd)
-	hboxAddRemoveEnd.addWidget(self.removeComboBoxEnd)
+        hboxAddRemoveEnd.addWidget(self.addEndButton)
+    	hboxAddRemoveEnd.addWidget(self.addComboBoxEnd)
+    	hboxAddRemoveEnd.addWidget(endOnLabel)
+    	hboxAddRemoveEnd.addWidget(self.onComboBoxEnd)
+    	hboxAddRemoveEnd.addWidget(separatorLabel)
+    	hboxAddRemoveEnd.addWidget(self.removeEndButton)
+    	hboxAddRemoveEnd.addWidget(self.removeComboBoxEnd)
 
-	self.updateAddComboBox()
-	
-	self.endBoard = Board(self, self.endBlocks)
+    	self.updateAddComboBoxEnd()
+        self.updateRemoveComboBoxEnd()
+    	
+    	self.endBoard = Board(self, self.endBlocks)
 
-	hboxProbEnd = QHBoxLayout()
-	hboxProbEnd.addWidget(self.endBoard)
-	hboxProbEnd.addStrut(200)
+    	hboxProbEnd = QHBoxLayout()
+    	hboxProbEnd.addWidget(self.endBoard)
+    	hboxProbEnd.addStrut(200)
 
-	#algo to use
-	self.radioBtnDFS = QRadioButton('DFS', self)
-	self.radioBtnBFS = QRadioButton('BFS', self)
-	self.radioBtnUCS = QRadioButton('UCS', self)
-	self.radioBtnAS1 = QRadioButton('A* 1', self)
-	self.radioBtnAS2 = QRadioButton('A* 2', self)
-	self.radioBtnAS3 = QRadioButton('A* 3', self)
-	self.radioBtnAS4 = QRadioButton('A* 4', self)
-	
-	hboxAlgo = QHBoxLayout()
-	hboxAlgo.addWidget(self.radioBtnDFS)
-	hboxAlgo.addWidget(self.radioBtnBFS)
-	hboxAlgo.addWidget(self.radioBtnUCS)
-	hboxAlgo.addWidget(self.radioBtnAS1)
-	hboxAlgo.addWidget(self.radioBtnAS2)
-	hboxAlgo.addWidget(self.radioBtnAS3)
-	hboxAlgo.addWidget(self.radioBtnAS4)
+        #random problem
+        self.randomProbButton = QPushButton('Random Problem')
+
+        hboxRandomProb = QHBoxLayout()
+        hboxRandomProb.addWidget(self.randomProbButton)
+
+    	#algo to use
+    	self.radioBtnDFS = QRadioButton('DFS', self)
+    	self.radioBtnBFS = QRadioButton('BFS', self)
+    	self.radioBtnUCS = QRadioButton('UCS', self)
+    	self.radioBtnAS1 = QRadioButton('A* 1', self)
+    	self.radioBtnAS2 = QRadioButton('A* 2', self)
+    	self.radioBtnAS3 = QRadioButton('A* 3', self)
+    	self.radioBtnAS4 = QRadioButton('A* 4', self)
+    	
+    	hboxAlgo = QHBoxLayout()
+    	hboxAlgo.addWidget(self.radioBtnDFS)
+    	hboxAlgo.addWidget(self.radioBtnBFS)
+    	hboxAlgo.addWidget(self.radioBtnUCS)
+    	hboxAlgo.addWidget(self.radioBtnAS1)
+    	hboxAlgo.addWidget(self.radioBtnAS2)
+    	hboxAlgo.addWidget(self.radioBtnAS3)
+    	hboxAlgo.addWidget(self.radioBtnAS4)
 
         #solve
         self.solveButton = QPushButton('Solve', self)
 
         #solution
-	solTitleLabel = QLabel('Solution:',self)
-	solTitleLabel.setMaximumHeight(100)
+    	solTitleLabel = QLabel('Solution:', self)
+    	# solTitleLabel.setMaximumHeight(100)
+        self.solNodesExpanded = QLabel('Nodes Expanded:', self)
+        self.solTimeLabel = QLabel('Time Taken:', self)
 
-	self.solLabel = QLabel('',self)
-	self.solLabel.setMinimumSize(self.solLabel.sizeHint())
+        hboxSol = QHBoxLayout()
+        hboxSol.addWidget(solTitleLabel)
+        hboxSol.addWidget(self.solNodesExpanded)
+        hboxSol.addWidget(self.solTimeLabel)
 
-	solScrollArea = QScrollArea(self)
-	solScrollArea.setWidget(self.solLabel)
+    	self.solLabel = QLabel('',self)
+    	self.solLabel.setMinimumSize(self.solLabel.sizeHint())
+
+    	solScrollArea = QScrollArea(self)
+    	solScrollArea.setWidget(self.solLabel)
 
         #main window layout
-	vbox = QVBoxLayout()
-	vbox.addLayout(hboxTableSize)
-	vbox.addLayout(hboxAddRemoveStart)
-	vbox.addLayout(hboxProbStart)
-	vbox.addLayout(hboxAddRemoveEnd)
-	vbox.addLayout(hboxProbEnd)
-	vbox.addLayout(hboxAlgo)
-	vbox.addWidget(self.solveButton)
-	vbox.addWidget(solTitleLabel)
-	vbox.addWidget(solScrollArea)
+    	vbox = QVBoxLayout()
+        vbox.setSpacing(7)
+    	vbox.addLayout(hboxTableSize)
+    	vbox.addLayout(hboxAddRemoveStart)
+    	vbox.addLayout(hboxProbStart)
+    	vbox.addLayout(hboxAddRemoveEnd)
+    	vbox.addLayout(hboxProbEnd)
+        vbox.addLayout(hboxRandomProb)
+    	vbox.addLayout(hboxAlgo)
+    	vbox.addWidget(self.solveButton)
+    	vbox.addLayout(hboxSol)
+    	vbox.addWidget(solScrollArea)
 
         mainWidget = QWidget()
         mainWidget.setLayout(vbox)
 
-	self.setCentralWidget(mainWidget)
+    	self.setCentralWidget(mainWidget)
 
-	self.setGeometry(30, 50, 200, 200)
+    	self.setGeometry(30, 50, 200, 200)
         self.setWindowTitle('Blocks World')
 
 ##	self.center()
@@ -158,63 +176,109 @@ class BW(QMainWindow):
 	    (screen.height()-size.height())/2)
 
     def connectObjects(self):
-
         #slider
         self.tableSizeSlider.valueChanged.connect(self.changeValue)
 
         #buttons
-        self.addButton.clicked.connect(self.addClicked)
-        self.removeButton.clicked.connect(self.removeClicked)
+        self.addStartButton.clicked.connect(self.addStartClicked)
+        self.removeStartButton.clicked.connect(self.removeStartClicked)
+
+        self.addEndButton.clicked.connect(self.addEndClicked)
+        self.removeEndButton.clicked.connect(self.removeEndClicked)
+
+        self.randomProbButton.clicked.connect(self.randomProbButtonClicked)
+
         self.solveButton.clicked.connect(self.solveClicked)
 
     def changeValue(self,value):
         self.tableSize = value
         self.tableSizeLabel.setText(str(self.tableSize))
-        self.updateAddComboBox()
+        self.updateAddComboBoxStart()
 
-    def addClicked(self):
-
+    def addStartClicked(self):
         #create new block
         newBlock = {}
-        newBlock['on'] = str(self.addComboBox.currentText())
+        newBlock['on'] = str(self.addComboBoxStart.currentText())
         newBlock['under'] = None
 
         #update details of the block upon which we have placed the new block
-        if self.addComboBox.currentText() == 'TABLE':
+        if self.addComboBoxStart.currentText() == 'TABLE':
             self.onStartTable.append(str(self.nextId))
             self.noOfBlocksOnStartTable += 1
         else:
-            self.startBlocks[str(self.addComboBox.currentText())]['under'] = str(self.nextId)
+            self.startBlocks[str(self.addComboBoxStart.currentText())]['under'] = str(self.nextId)
 
         self.startBlocks[str(self.nextId)] = newBlock
         self.nextId += 1
 
-        self.updateAddComboBox()
+        self.updateComboBoxes()
+        self.updateGUI(start=True, end=False)
 
-        #update GUI
-        self.startBoard.replaceAllBlocks(self.startBlocks)
-        self.startBoard.repaint()
-        
-    def removeClicked(self):
+    def addEndClicked(self):
+        addBox = str(self.addComboBoxEnd.currentText())
+        onBox = str(self.onComboBoxEnd.currentText())
 
-        #can't remove table
-        if self.addComboBox.currentText() == 'TABLE':
+        if addBox == '':
             return
 
-        if self.startBlocks[str(self.addComboBox.currentText())]['on'] == 'TABLE':
+        #create new block
+        newBlock = {}
+        newBlock['on'] = onBox
+        newBlock['under'] = None
+
+        #update details of the block upon which we have placed the new block
+        if onBox == 'TABLE':
+            self.onEndTable.append(addBox)
+            self.noOfBlocksOnEndTable += 1
+        else:
+            self.endBlocks[onBox]['under'] = addBox
+
+        self.endBlocks[addBox] = newBlock
+
+        self.updateComboBoxes()
+        self.updateGUI(start=False, end=True)
+
+    def removeStartClicked(self):
+        removeCB = str(self.removeComboBoxStart.currentText())
+
+        if len(removeCB) == 0:
+            return
+
+        onBox = str(self.startBlocks[removeCB]['on'])
+
+        if onBox == 'TABLE':
             self.noOfBlocksOnStartTable -= 1
         else:
-            self.startBlocks[str(self.startBlocks[str(self.addComboBox.currentText())]['on'])]['under'] = None        
+            self.startBlocks[onBox]['under'] = None        
 
-        del self.startBlocks[str(self.addComboBox.currentText())]
+        del self.startBlocks[removeCB]
 
-        self.updateAddComboBox()
-        
-        #update GUI
-        self.startBoard.replaceAllBlocks(self.startBlocks)
-        self.startBoard.repaint()
+        self.updateComboBoxes()
+        self.updateGUI(start=True, end=False)
+
+    def removeEndClicked(self):
+        removeCB = str(self.removeComboBoxEnd.currentText())
+
+        if len(removeCB) == 0:
+            return
+
+        onBox = str(self.endBlocks[removeCB]['on'])
+
+        if onBox == 'TABLE':
+            self.noOfBlocksOnEndTable -= 1
+        else:
+            self.endBlocks[onBox]['under'] = None        
+
+        del self.endBlocks[removeCB]
+
+        self.updateComboBoxes()
+        self.updateGUI(start=False, end=True)
         
     def solveClicked(self):
+        #TODO no. of nodes expanded
+        if not len(self.startBlocks) == len(self.endBlocks):
+            return
+
         algo = ''
         h = None
         if self.radioBtnDFS.isChecked():
@@ -227,18 +291,27 @@ class BW(QMainWindow):
             algo = 'aStar'
             h = blocksInPlacerHeuristic
         else:
-            algo = 'BFS'
-            print 'TODO'
-
+            algo = 'aStar'
+            h = blocksInPlacerHeuristic
         
         s = BlocksWorldSolver()
         ws = copy.deepcopy(self.startBlocks)
         ws["HOLDING"] = None
-##        ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
-        gs = {"1": {"on": "2", "under": None}, "2": {"on": "3", "under": "1"}, "3": {"on": "4", "under": "2"}, "4": {"on": "5", "under": "3"}, "5": {"on": "TABLE", "under": "4"},"HOLDING": None}
+        gs = copy.deepcopy(self.endBlocks)
+        gs["HOLDING"] = None
+        # ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
+        # gs = {"1": {"on": "2", "under": None}, "2": {"on": "3", "under": "1"}, "3": {"on": "4", "under": "2"}, "4": {"on": "5", "under": "3"}, "5": {"on": "TABLE", "under": "4"},"HOLDING": None}
         s.setStartState(ws)
         s.setGoalState(gs)
+
+        from time import time
+        startTime = time()
+
         sol = s.solve(algo, heuristic=h)
+
+        endTime = time()
+        timeTaken = endTime - startTime
+        self.solTimeLabel.setText('Time Taken: ' + str(round(timeTaken, 2)) + ' seconds')
 
         labelText = ''
 
@@ -258,27 +331,132 @@ class BW(QMainWindow):
 
         self.solLabel.setMinimumSize(self.solLabel.sizeHint())
 
-    def updateAddComboBox(self):
-        
-        self.addComboBox.clear()
+    def updateAddComboBoxStart(self):
+        self.addComboBoxStart.clear()
 
         for block in self.startBlocks:
             if self.startBlocks[str(block)]['under'] is None:
-                self.addComboBox.addItem(block)
+                self.addComboBoxStart.addItem(block)
 
         #check if there's room on the table to add the block
         if self.tableSize > self.noOfBlocksOnStartTable:
-            self.addComboBox.addItem('TABLE')
+            self.addComboBoxStart.addItem('TABLE')
 
-##    def updateRemoveComboBox(self):
-##        self.removeComboBox.clear()
-##        for block in self.startBlocks:
-##            if self.startBlocks[block]['under'] is None:
-##                self.removeComboBox.addItem(block)
+    def updateAddComboBoxEnd(self):        
+        self.addComboBoxEnd.clear()
 
-##    def updateComboBoxes(self):
-##        self.updateAddComboBox()
-##        self.updateRemoveComboBox()
+        for block in self.startBlocks:
+            if block not in self.endBlocks:
+                self.addComboBoxEnd.addItem(block)
+
+    def updateOnComboBoxEnd(self):
+        self.onComboBoxEnd.clear()
+
+        for block in self.endBlocks:
+            if self.endBlocks[str(block)]['under'] is None:
+                self.onComboBoxEnd.addItem(block)
+
+        #check if there's room on the table to add the block
+        if self.tableSize > self.noOfBlocksOnEndTable:
+            self.onComboBoxEnd.addItem('TABLE')
+
+    def updateRemoveComboBoxStart(self):
+        self.removeComboBoxStart.clear()
+        for block in self.startBlocks:
+            if self.startBlocks[block]['under'] is None:
+                self.removeComboBoxStart.addItem(block)
+
+    def updateRemoveComboBoxEnd(self):
+        self.removeComboBoxEnd.clear()
+        for block in self.endBlocks:
+            if self.endBlocks[block]['under'] is None:
+                self.removeComboBoxEnd.addItem(block)
+
+    def updateComboBoxes(self):
+        self.updateAddComboBoxStart()
+        self.updateRemoveComboBoxStart()
+        self.updateAddComboBoxEnd()
+        self.updateOnComboBoxEnd()
+        self.updateRemoveComboBoxEnd()
+
+    def updateGUI(self, start=True, end=True):
+        # self.updateComboBoxes()
+
+        if start:
+            self.startBoard.replaceAllBlocks(self.startBlocks)
+            self.startBoard.repaint()
+        
+        if end:
+            self.endBoard.replaceAllBlocks(self.endBlocks)
+            self.endBoard.repaint()
+
+    def randomProbButtonClicked(self):
+        #make sure max height of a pile is <= 5
+
+        n = random.randint(5,15) #no. of blocks
+
+        #start blocks
+
+        blockNames = [str(i+1) for i in range(n)]
+
+        random.shuffle(blockNames)
+
+        self.startBlocks = {}
+
+        self.noOfBlocksOnStartTable = 0
+
+        uncoveredBlocksStart = []
+        uncoveredBlocksStart.append('TABLE')
+
+        for i in blockNames:
+            placeOn = random.choice(uncoveredBlocksStart)
+            newBlock = {}
+            newBlock['on'] = placeOn
+            newBlock['under'] = None
+            self.startBlocks[i] = newBlock
+            uncoveredBlocksStart.append(i)
+
+            if placeOn == 'TABLE':
+                self.noOfBlocksOnStartTable += 1
+                if self.noOfBlocksOnStartTable == self.tableSize:
+                    self.uncoveredBlocksStart.remove('TABLE')
+                self.onStartTable.append(i)
+            else:
+                self.startBlocks[placeOn]['under'] = i
+                uncoveredBlocksStart.remove(placeOn)
+
+        #end blocks
+
+        blockNames = [str(i+1) for i in range(n)]
+
+        random.shuffle(blockNames)
+
+        self.endBlocks = {}
+
+        self.noOfBlocksOnEndTable = 0
+
+        uncoveredBlocksEnd = []
+        uncoveredBlocksEnd.append('TABLE')
+
+        for i in blockNames:
+            placeOn = random.choice(uncoveredBlocksEnd)
+            newBlock = {}
+            newBlock['on'] = placeOn
+            newBlock['under'] = None
+            self.endBlocks[i] = newBlock
+            uncoveredBlocksEnd.append(i)
+
+            if placeOn == 'TABLE':
+                self.onEndTable.append(i)
+                self.noOfBlocksOnEndTable += 1
+                if self.noOfBlocksOnEndTable == self.tableSize:
+                    self.uncoveredBlocksEnd.remove('TABLE')
+            else:
+                self.endBlocks[placeOn]['under'] = i
+                uncoveredBlocksEnd.remove(placeOn)
+
+        self.updateComboBoxes()
+        self.updateGUI(start=True, end=True)
 
 
 class Board(QFrame):
@@ -296,14 +474,12 @@ class Board(QFrame):
         self.calcBlockPositions()
 
     def addBlock(self, block):
-        return 0
+        return
 
     def removeBlock(self, block):
-        return 0
+        return
 
     def paintEvent(self, event):
-##        print 'repainting. block positions:', self.blockPositions 
-
         rect = self.contentsRect()
         qp = QPainter()
         qp.begin(self)
