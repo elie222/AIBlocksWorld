@@ -352,6 +352,9 @@ def blockHaveMutualPrevention (problem, curState, goalState, curCheckedForLockSe
     curCheckedForLockSet = set([]) 
     while (True):
         curCheckedForLockSet.add(block)
+        if goalState[block]["on"] == "TABLE":
+            return False 
+
         block = goalState[goalState[block]["on"]]["under"]
         if block in curCheckedForLockSet:
             return True
