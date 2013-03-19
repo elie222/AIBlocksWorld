@@ -114,6 +114,8 @@ class BW(QMainWindow):
     	self.radioBtnAS2 = QRadioButton('A* 2', self)
     	self.radioBtnAS3 = QRadioButton('A* 3', self)
     	self.radioBtnAS4 = QRadioButton('A* 4', self)
+        self.radioBtnAS5 = QRadioButton('A* 5', self)
+        self.radioBtnAS6 = QRadioButton('A* 6', self)
     	
     	hboxAlgo = QHBoxLayout()
     	hboxAlgo.addWidget(self.radioBtnDFS)
@@ -123,6 +125,8 @@ class BW(QMainWindow):
     	hboxAlgo.addWidget(self.radioBtnAS2)
     	hboxAlgo.addWidget(self.radioBtnAS3)
     	hboxAlgo.addWidget(self.radioBtnAS4)
+        hboxAlgo.addWidget(self.radioBtnAS5)
+        hboxAlgo.addWidget(self.radioBtnAS6)
 
         #solve
         self.solveButton = QPushButton('Solve', self)
@@ -163,7 +167,7 @@ class BW(QMainWindow):
 
     	self.setCentralWidget(mainWidget)
 
-    	self.setGeometry(30, 50, 200, 200)
+    	self.setGeometry(30, 50, 250, 250)
         self.setWindowTitle('Blocks World')
 
 ##	self.center()
@@ -276,6 +280,8 @@ class BW(QMainWindow):
         
     def solveClicked(self):
         #TODO no. of nodes expanded
+        #TODO simulated annealing?
+
         if not len(self.startBlocks) == len(self.endBlocks):
             return
 
@@ -287,20 +293,27 @@ class BW(QMainWindow):
             algo = 'BFS'
         elif self.radioBtnUCS.isChecked():
             algo = 'UCS'
-        elif self.radioBtnAS1.isChecked():
-            algo = 'aStar'
-            h = blocksInPlacerHeuristic
         else:
             algo = 'aStar'
-            h = blocksInPlacerHeuristic
+            h = None
+            if self.radioBtnAS1.isChecked():
+                h = blocksInPlacerHeuristic
+            elif self.radioBtnAS2.isChecked():
+                h = goalStateDiffrencesHeuristic
+            elif self.radioBtnAS3.isChecked():
+                h = pickingNeededHeuristic
+            elif self.radioBtnAS4.isChecked():
+                h = improvedPickingNeededHeuristic
+            elif self.radioBtnAS5.isChecked():
+                h = mutualPreventionImprovedPickingNeededHeuristic
+            elif self.radioBtnAS6.isChecked():
+                h = mutualPreventionPickingNeededHeuristic
         
         s = BlocksWorldSolver()
         ws = copy.deepcopy(self.startBlocks)
         ws["HOLDING"] = None
         gs = copy.deepcopy(self.endBlocks)
         gs["HOLDING"] = None
-        # ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
-        # gs = {"1": {"on": "2", "under": None}, "2": {"on": "3", "under": "1"}, "3": {"on": "4", "under": "2"}, "4": {"on": "5", "under": "3"}, "5": {"on": "TABLE", "under": "4"},"HOLDING": None}
         s.setStartState(ws)
         s.setGoalState(gs)
 
@@ -312,6 +325,8 @@ class BW(QMainWindow):
         endTime = time()
         timeTaken = endTime - startTime
         self.solTimeLabel.setText('Time Taken: ' + str(round(timeTaken, 2)) + ' seconds')
+
+        self.solNodesExpanded.setText('Nodes Expanded: ' + str(s.getNodesExpandedNum()))
 
         labelText = ''
 
@@ -330,6 +345,7 @@ class BW(QMainWindow):
             self.solLabel.setText(labelText[:-2])
 
         self.solLabel.setMinimumSize(self.solLabel.sizeHint())
+        self.solLabel.setAlignment(Qt.AlignTop)
 
     def updateAddComboBoxStart(self):
         self.addComboBoxStart.clear()
@@ -393,7 +409,7 @@ class BW(QMainWindow):
     def randomProbButtonClicked(self):
         #make sure max height of a pile is <= 5
 
-        n = random.randint(5,15) #no. of blocks
+        n = random.randint(5,50) #no. of blocks
 
         #start blocks
 
@@ -419,7 +435,7 @@ class BW(QMainWindow):
             if placeOn == 'TABLE':
                 self.noOfBlocksOnStartTable += 1
                 if self.noOfBlocksOnStartTable == self.tableSize:
-                    self.uncoveredBlocksStart.remove('TABLE')
+                    uncoveredBlocksStart.remove('TABLE')
                 self.onStartTable.append(i)
             else:
                 self.startBlocks[placeOn]['under'] = i
@@ -450,7 +466,7 @@ class BW(QMainWindow):
                 self.onEndTable.append(i)
                 self.noOfBlocksOnEndTable += 1
                 if self.noOfBlocksOnEndTable == self.tableSize:
-                    self.uncoveredBlocksEnd.remove('TABLE')
+                    uncoveredBlocksEnd.remove('TABLE')
             else:
                 self.endBlocks[placeOn]['under'] = i
                 uncoveredBlocksEnd.remove(placeOn)

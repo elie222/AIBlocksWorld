@@ -426,6 +426,7 @@ def mutualPreventionPickingNeededHeuristic(state, problem):
                 #print checkedForLockSet
                 h +=2
     return h
+    
 def simulateAnnealing(problem,valHeuristic=goalStateDiffrencesHeuristic):
     temp_start = 10000
     temp = temp_start
