@@ -591,9 +591,9 @@ def multipleTests():
     h6 = mutualPreventionPickingNeededHeuristic
 
     i = 5
-    while i<=15:
-        n = i
-        ts = int(i/2)
+    while i<=15:#set this to whatever you want
+        n = i#no of blocks
+        ts = int(i/2)#table size - set this to whatever you want
         ws, gs = createRandomProblem(n,ts)
         # print 'ws:', ws
         # print 'gs:', gs
