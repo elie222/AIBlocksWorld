@@ -593,11 +593,11 @@ def multipleTests():
     i = 5
     while i<=25:
         n = i
-        ts = i
+        ts = round(i/2)
         ws, gs = createRandomProblem(n,ts)
-        print 'ws:', ws
-        print 'gs:', gs
-        print ''
+        # print 'ws:', ws
+        # print 'gs:', gs
+        # print ''
         print 'No of blocks:', n
         print 'Table size:', ts
         print ''
