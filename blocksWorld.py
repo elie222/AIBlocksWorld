@@ -591,9 +591,9 @@ def multipleTests():
     h6 = mutualPreventionPickingNeededHeuristic
 
     i = 5
-    while i<=25:
+    while i<=15:
         n = i
-        ts = round(i/2)
+        ts = int(i/2)
         ws, gs = createRandomProblem(n,ts)
         # print 'ws:', ws
         # print 'gs:', gs
