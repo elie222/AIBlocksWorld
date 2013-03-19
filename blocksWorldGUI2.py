@@ -279,7 +279,6 @@ class BW(QMainWindow):
         self.updateGUI(start=False, end=True)
         
     def solveClicked(self):
-        #TODO no. of nodes expanded
         #TODO simulated annealing?
 
         if not len(self.startBlocks) == len(self.endBlocks):

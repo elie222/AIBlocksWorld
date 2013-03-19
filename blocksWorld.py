@@ -1,6 +1,6 @@
 import util
 import copy
-from random import sample, randint, uniform
+from random import sample, randint, uniform, shuffle, choice
 from math import exp
 
 '''
@@ -163,20 +163,6 @@ def getStatePathFromNode(givenNode, problem):
     curNode = curNode[3]
   givenNodePath.reverse()
   return givenNodePath
-
-## I don't know what this is, but I don't think we need it.
-##def getStatePathFromNode(givenNode):
-##    """
-##    return the path of the given node
-##    """
-##    givenNodePath = []
-##    curNode = givenNode
-##
-##    while(curNode[0] != self.startState):
-##        givenNodePath.append(curNode[1])
-##        curNode = curNode[3]
-##    givenNodePath.reverse()
-##    return givenNodePath
 
 def depthOrBreadthFirstSearch(problem, container):
     """
@@ -595,9 +581,96 @@ def runMain():
 ##    s.populateGoal(gs)
 ##    s.populateWorld(ws)
 ##    s.solve()
- 
+
+def multipleTests():
+    h1 = blocksInPlacerHeuristic
+    h2 = goalStateDiffrencesHeuristic
+    h3 = pickingNeededHeuristic
+    h4 = improvedPickingNeededHeuristic
+    h5 = mutualPreventionImprovedPickingNeededHeuristic
+    h6 = mutualPreventionPickingNeededHeuristic
+
+    i = 5
+    while i<=25:
+        n = i
+        ts = i
+        ws, gs = createRandomProblem(n,ts)
+        print 'ws:', ws
+        print 'gs:', gs
+        print ''
+        print 'No of blocks:', n
+        print 'Table size:', ts
+        print ''
+        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h1,tableSpace=ts)
+        # print 'h1. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
+        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h2,tableSpace=ts)
+        # print 'h2. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
+        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h3,tableSpace=ts)
+        # print 'h3. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
+        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h4,tableSpace=ts)
+        # print 'h4. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
+        sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h5,tableSpace=ts)
+        print 'h5. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
+        sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h6,tableSpace=ts)
+        print 'h6. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
+        print ''
+
+        i += 5
+
+def createRandomProblem(noOfBlocks, tableSize):
+    ws = createRandomState(noOfBlocks,tableSize)
+    gs = createRandomState(noOfBlocks,tableSize)
+    return ws, gs
+
+def createRandomState(noOfBlocks, tableSize):
+    blockNames = [str(i+1) for i in range(noOfBlocks)]
+
+    shuffle(blockNames)
+
+    blocks = {}
+
+    noOfBlocksOnTable = 0
+
+    uncoveredBlocks = []
+    uncoveredBlocks.append('TABLE')
+
+    for i in blockNames:
+        placeOn = choice(uncoveredBlocks)
+        newBlock = {}
+        newBlock['on'] = placeOn
+        newBlock['under'] = None
+        blocks[i] = newBlock
+        uncoveredBlocks.append(i)
+
+        if placeOn == 'TABLE':
+            noOfBlocksOnTable += 1
+            if noOfBlocksOnTable == tableSize:
+                uncoveredBlocks.remove('TABLE')
+        else:
+            blocks[placeOn]['under'] = i
+            uncoveredBlocks.remove(placeOn)
+    blocks['HOLDING'] = None
+    return blocks
+
+def singleTest(ws, gs, method, heuristic=None, tableSpace='infinite'):
+    s = BlocksWorldSolver()
+    s.setStartState(ws)
+    s.setGoalState(gs)
+    s.setTableSpace(tableSpace)
+
+    from time import time
+    startTime = time()
+    sol = s.solve(method, heuristic)
+    endTime = time()
+
+    timeTaken = endTime - startTime
+
+    return sol, s.getNodesExpandedNum(), timeTaken
+
+
 if __name__ == "__main__" :
-    runMain()
+    # runMain()
+    multipleTests()
 
 # Abbreviations
 bfs = breadthFirstSearch
