@@ -7,7 +7,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from blocksWorld import *
 
-NUMBER_OF_BLOCKS = 5
+NUMBER_OF_BLOCKS = 15
 
 class BW(QMainWindow):
     
@@ -296,8 +296,6 @@ class BW(QMainWindow):
             algo = 'BFS'
         elif self.radioBtnUCS.isChecked():
             algo = 'UCS'
-        elif self.radioBtnSA.isChecked():
-            algo = 'SA'
         else:
             algo = 'aStar'
             h = None

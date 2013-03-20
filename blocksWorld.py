@@ -4,19 +4,22 @@ from random import sample, randint, uniform, shuffle, choice
 from math import exp
 from prettytable import PrettyTable
 
-'''
-TODO: 
-Heuristic functions for A*
-Solve the problem in other ways?
-Create more complicated tests
-GUI - using PyQt4 to do this.
-'''
+# these variables are for testing purposes
+MAX_NODES_TO_EXPLORE = 2999
+NO_OF_TESTS = 10
+MIN_BLOCKS_TO_TEST = 15
+MAX_BLOCKS_TO_TEST = 15
+INCREMENT = 5
 
-MAX_NODES_TO_EXPLORE = 3000
-NO_OF_TESTS = 20
-MIN_BLOCKS_TO_TEST = 3
-MAX_BLOCKS_TO_TEST = 5
-INCREMENT = 1
+'''
+    name of each heuristic in the paper to the left and the heuristic name in the cide to the right
+    h1 = blocksInPlacerHeuristic
+    h2 = goalStateDiffrencesHeuristic
+    h3 = pickingNeededHeuristic
+    h4 = improvedPickingNeededHeuristic
+    h5 = mutualPreventionPickingNeededHeuristic
+    h6 = mutualPreventionImprovedPickingNeededHeuristic
+'''
 
 class BlocksWorldSolver:
     ## Initialization code
@@ -535,6 +538,7 @@ def multipleTests():
 
     i = MIN_BLOCKS_TO_TEST
     while i<=MAX_BLOCKS_TO_TEST:
+        print 'testing problems with', i, 'blocks'
         h1Nodes, h1Time = 0, 0
         h2Nodes, h2Time = 0, 0
         h3Nodes, h3Time = 0, 0
@@ -553,21 +557,21 @@ def multipleTests():
             # print 'Table size:', ts
             # print ''
 
-            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h1,tableSpace=ts)
-            h1Nodes += nodesExpanded
-            h1Time += timeTaken
+            # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h1,tableSpace=ts)
+            # h1Nodes += nodesExpanded
+            # h1Time += timeTaken
 
-            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h2,tableSpace=ts)
-            h2Nodes += nodesExpanded
-            h2Time += timeTaken
+            # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h2,tableSpace=ts)
+            # h2Nodes += nodesExpanded
+            # h2Time += timeTaken
 
-            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h3,tableSpace=ts)
-            h3Nodes += nodesExpanded
-            h3Time += timeTaken
+            # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h3,tableSpace=ts)
+            # h3Nodes += nodesExpanded
+            # h3Time += timeTaken
 
-            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h4,tableSpace=ts)
-            h4Nodes += nodesExpanded
-            h4Time += timeTaken
+            # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h4,tableSpace=ts)
+            # h4Nodes += nodesExpanded
+            # h4Time += timeTaken
 
             sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h5,tableSpace=ts)
             h5Nodes += nodesExpanded
@@ -577,10 +581,10 @@ def multipleTests():
             h6Nodes += nodesExpanded
             h6Time += timeTaken
 
-        table.add_row(['1', i, ts, h1Nodes/NO_OF_TESTS, h1Time/NO_OF_TESTS])
-        table.add_row(['2', i, ts, h2Nodes/NO_OF_TESTS, h2Time/NO_OF_TESTS])
-        table.add_row(['3', i, ts, h3Nodes/NO_OF_TESTS, h3Time/NO_OF_TESTS])
-        table.add_row(['4', i, ts, h4Nodes/NO_OF_TESTS, h4Time/NO_OF_TESTS])
+        # table.add_row(['1', i, ts, h1Nodes/NO_OF_TESTS, h1Time/NO_OF_TESTS])
+        # table.add_row(['2', i, ts, h2Nodes/NO_OF_TESTS, h2Time/NO_OF_TESTS])
+        # table.add_row(['3', i, ts, h3Nodes/NO_OF_TESTS, h3Time/NO_OF_TESTS])
+        # table.add_row(['4', i, ts, h4Nodes/NO_OF_TESTS, h4Time/NO_OF_TESTS])
         table.add_row(['5', i, ts, h5Nodes/NO_OF_TESTS, h5Time/NO_OF_TESTS])
         table.add_row(['6', i, ts, h6Nodes/NO_OF_TESTS, h6Time/NO_OF_TESTS])
 
