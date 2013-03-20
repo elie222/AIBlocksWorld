@@ -2,6 +2,7 @@ import util
 import copy
 from random import sample, randint, uniform, shuffle, choice
 from math import exp
+from prettytable import PrettyTable
 
 '''
 TODO: 
@@ -10,6 +11,12 @@ Solve the problem in other ways?
 Create more complicated tests
 GUI - using PyQt4 to do this.
 '''
+
+MAX_NODES_TO_EXPLORE = 3000
+NO_OF_TESTS = 20
+MIN_BLOCKS_TO_TEST = 3
+MAX_BLOCKS_TO_TEST = 5
+INCREMENT = 1
 
 class BlocksWorldSolver:
     ## Initialization code
@@ -173,6 +180,8 @@ def depthOrBreadthFirstSearch(problem, container):
     container.push(firstNode)
     visitedStates = []
     while (not container.isEmpty()):
+        if problem.getNodesExpandedNum() > MAX_NODES_TO_EXPLORE:
+            return None
         curNode = container.pop()
         if (problem.isGoalState(curNode[0])):
             return getStatePathFromNode(curNode, problem)
@@ -224,6 +233,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   frontier.push(firstNode, 0)
 
   while(not frontier.isEmpty()):
+    if problem.getNodesExpandedNum() > MAX_NODES_TO_EXPLORE:
+        return None
     curNode = frontier.pop()
     if(curNode[0] in explored):
       continue
@@ -243,8 +254,9 @@ def blocksInPlacerHeuristic(state, problem):
     h = 0
     goalState = problem.getGoalState()
     for x in state:
-        if not state[x] == goalState[x]:
-            h += 1
+        if not x == "HOLDING" and not state["HOLDING"] == x:
+            if not state[x] == goalState[x] :
+                h += 1
 ##    print 'blocksInPlacerHeuristic. h =', h 
     return h
 
@@ -255,7 +267,7 @@ def goalStateDiffrencesHeuristic(state, problem):
     h = 0
     goalState = problem.getGoalState()
     for x in state:
-		if not x == "HOLDING":
+		if not x == "HOLDING" and not state["HOLDING"] == x:
 			for y in state[x]:
 				if not state[x][y] == goalState[x][y]:
 					h += 1
@@ -347,6 +359,36 @@ def blockHaveMutualPrevention (problem, curState, goalState, curCheckedForLockSe
         if goalState[goalState[block]["on"]]["under"] is None:
             return False            
     
+def mutualPreventionPickingNeededHeuristic(state, problem):
+    '''
+    This heuristic calculates the no. of differences between the goal state and the current state.
+    '''
+    h = 0
+    pickingSet = set([])
+    goalState = problem.getGoalState()
+    for x in state:
+        if not x == "HOLDING" and not state["HOLDING"] == x:
+            if  not x in pickingSet:
+                if not state[x]["on"] == goalState[x]["on"]:
+                    h += pickingNeeded(state, pickingSet, x)
+
+    h= 2*h
+    if not state["HOLDING"] is None:
+        h += 1 
+    
+    checkedForLockSet = set([]) 
+    curCheckedForLockSet = set([])
+    #print state
+    #print pickingSet
+    for z in pickingSet:
+        if z not in checkedForLockSet:
+            if blockHaveMutualPrevention(problem, state, goalState, curCheckedForLockSet, z):
+                #print curCheckedForLockSet
+                checkedForLockSet= checkedForLockSet | curCheckedForLockSet
+                #print checkedForLockSet
+                h +=2
+    return h
+
 def mutualPreventionImprovedPickingNeededHeuristic(state, problem):
     '''
     This heuristic calculates the no. of differences between the goal state and the current state.
@@ -380,37 +422,6 @@ def mutualPreventionImprovedPickingNeededHeuristic(state, problem):
                 checkedForLockSet= checkedForLockSet | curCheckedForLockSet
                 if curCheckedForLockSet.isdisjoint(pickTwiceSet):
                     h +=2
-    return h
-    
-    
-def mutualPreventionPickingNeededHeuristic(state, problem):
-    '''
-    This heuristic calculates the no. of differences between the goal state and the current state.
-    '''
-    h = 0
-    pickingSet = set([])
-    goalState = problem.getGoalState()
-    for x in state:
-        if not x == "HOLDING" and not state["HOLDING"] == x:
-            if  not x in pickingSet:
-                if not state[x]["on"] == goalState[x]["on"]:
-                    h += pickingNeeded(state, pickingSet, x)
-
-    h= 2*h
-    if not state["HOLDING"] is None:
-        h += 1 
-    
-    checkedForLockSet = set([]) 
-    curCheckedForLockSet = set([])
-    #print state
-    #print pickingSet
-    for z in pickingSet:
-        if z not in checkedForLockSet:
-            if blockHaveMutualPrevention(problem, state, goalState, curCheckedForLockSet, z):
-                #print curCheckedForLockSet
-                checkedForLockSet= checkedForLockSet | curCheckedForLockSet
-                #print checkedForLockSet
-                h +=2
     return h
     
 def simulateAnnealing(problem,valHeuristic=goalStateDiffrencesHeuristic):
@@ -458,59 +469,7 @@ def test(name, ws, gs, method, heuristic=None):
         print 'Solution:\n', sol
 		
 def runMain():
-    """
-    Test function to run all tests provided with project requirement
-    documentation and a few more.
-    """
-    """
-    ## Test 1 - DFS Test
-    name = "=== Running Test 1 - DFS ==="
-    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    test(name, ws, gs, 'DFS')
 
-    ## Test 2 - BFS Test
-    name =  "\n=== Running Test 2 - BFS ==="
-    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    test(name, ws, gs, 'BFS')
-	
-    ## Test 3 - UCS Test
-    name = "\n=== Running Test 3 - UCS ==="
-    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    test(name, ws, gs, 'UCS')
-
-    ## Test 5 - a* Test with blocksInPlacerHeuristic
-    name = "\n=== Running Test 5 - A* with blocksInPlacerHeuristic ==="
-    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    test(name, ws, gs, "aStar", heuristic=blocksInPlacerHeuristic)
-	
-    ## Test 6 - a* Test with goalStateDiffrencesHeuristic
-    name = "\n=== Running Test 6 - A* with goalStateDiffrencesHeuristic ==="
-    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    test(name, ws, gs, "aStar", heuristic=goalStateDiffrencesHeuristic)\
-	
-	## Test 7 - table size check1
-    print "\n=== Running Test 7 - BFS with table size check1 ==="
-    ws = {"A": {"on": "TABLE", "under": None}, "B": {"on": "TABLE", "under": "C"}, "C": {"on": "B", "under": None}, "HOLDING": None}
-    gs = {'A': {'on': 'B', 'under': None}, 'B': {'on': 'TABLE', 'under': "A"}, 'C': {'on': 'TABLE', 'under': None}, "HOLDING": None}
-    s = BlocksWorldSolver()
-    s.setStartState(ws)
-    s.setGoalState(gs)
-    s.setTableSpace(2)
-    
-    sol = s.solve("BFS")
-    if sol == None:
-        print 'node expanded: ' , s.getNodesExpandedNum()
-        print "there is no solution to this problem"
-    else:
-        print 'Solultion length:', len(sol)
-        print 'node expande: ' , s.getNodesExpandedNum()
-        print 'Solution:\n', sol
-    """
     ## Test picHeuristic
     name = "\n=== Running Test 8 - A* with pickingNeededHeuristic ==="
     ws = {"A": {"on": "TABLE", "under": "B"}, "B": {"on": "A", "under": "C"}, "C": {"on": "B", "under": "D"}, "D": {"on": "C", "under": "E"}, "E": {"on": "D", "under": None},"HOLDING": None}
@@ -554,68 +513,84 @@ def runMain():
     ws = {"A": {"on": "C", "under": None}, "B": {"on": "D", "under": None}, "C": {"on": "TABLE", "under": "A"}, "D": {"on": "TABLE", "under": "B"},"HOLDING": None}
     gs = {"A": {"on": "D", "under": None}, "B": {"on": "C", "under": None}, "C": {"on": "TABLE", "under": "B"}, "D": {"on": "TABLE", "under": "A"},"HOLDING": None}
     test(name, ws, gs, "aStar", heuristic=mutualPreventionPickingNeededHeuristic)
-    
-##    ## Test 2
-##    print "nn Running Test 2 n"
-##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
-##    gs = "((on C B), (on D A), (ontable B), (clear D))"
-##    s = BlocksWorldSolver()
-##    s.populateGoal(gs)
-##    s.populateWorld(ws)
-##    s.solve()
-##
-##    ## Test 3
-##    print "nn Running Test 3 n"
-##    ws = "((clear A), (armempty), (clear D), (ontable C),  (ontable D), (on B C), (on A B))"
-##    gs = "((ontable C), (ontable D), (on B D), (clear A), (on A C),  (clear B))"
-##    s = BlocksWorldSolver()
-##    s.populateGoal(gs)
-##    s.populateWorld(ws)
-##    s.solve()
-##
-##    # Test 2 with extra goal state
-##    print "nn Running Test 2 with extra Goal State n"
-##    ws = "((on A B), (on C D), (ontable B), (ontable D), (clear A), (clear C), (armempty))"
-##    gs = "((on C B), (on D A), (ontable B), (clear D),(ontable A))"
-##    s = BlocksWorldSolver()
-##    s.populateGoal(gs)
-##    s.populateWorld(ws)
-##    s.solve()
 
 def multipleTests():
     h1 = blocksInPlacerHeuristic
     h2 = goalStateDiffrencesHeuristic
     h3 = pickingNeededHeuristic
     h4 = improvedPickingNeededHeuristic
-    h5 = mutualPreventionImprovedPickingNeededHeuristic
-    h6 = mutualPreventionPickingNeededHeuristic
+    h5 = mutualPreventionPickingNeededHeuristic
+    h6 = mutualPreventionImprovedPickingNeededHeuristic
 
-    i = 5
-    while i<=15:#set this to whatever you want
-        n = i#no of blocks
-        ts = int(i/2)#table size - set this to whatever you want
-        ws, gs = createRandomProblem(n,ts)
-        # print 'ws:', ws
-        # print 'gs:', gs
-        # print ''
-        print 'No of blocks:', n
-        print 'Table size:', ts
-        print ''
-        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h1,tableSpace=ts)
-        # print 'h1. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
-        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h2,tableSpace=ts)
-        # print 'h2. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
-        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h3,tableSpace=ts)
-        # print 'h3. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
-        # sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h4,tableSpace=ts)
-        # print 'h4. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
-        sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h5,tableSpace=ts)
-        print 'h5. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
-        sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h6,tableSpace=ts)
-        print 'h6. Nodes expanded:', nodesExpanded, '. Time taken:', timeTaken
-        print ''
+    table = PrettyTable(['Heuristic','No. of blocks','Table Size','Average Nodes Expanded','Average Time Taken'], sortby='Heuristic')
+    table.align['Heuristic'] = '1'
 
-        i += 5
+    data = {}
+    data['1'] = {}
+    data['2'] = {}
+    data['3'] = {}
+    data['4'] = {}
+    data['5'] = {}
+    data['6'] = {}
+
+    i = MIN_BLOCKS_TO_TEST
+    while i<=MAX_BLOCKS_TO_TEST:
+        h1Nodes, h1Time = 0, 0
+        h2Nodes, h2Time = 0, 0
+        h3Nodes, h3Time = 0, 0
+        h4Nodes, h4Time = 0, 0
+        h5Nodes, h5Time = 0, 0
+        h6Nodes, h6Time = 0, 0
+
+        for j in range(NO_OF_TESTS):
+            n = i #no of blocks
+            ts = i #table size
+            ws, gs = createRandomProblem(n,ts)
+            # print 'ws:', ws
+            # print 'gs:', gs
+            # print ''
+            # print 'No of blocks:', n
+            # print 'Table size:', ts
+            # print ''
+
+            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h1,tableSpace=ts)
+            h1Nodes += nodesExpanded
+            h1Time += timeTaken
+
+            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h2,tableSpace=ts)
+            h2Nodes += nodesExpanded
+            h2Time += timeTaken
+
+            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h3,tableSpace=ts)
+            h3Nodes += nodesExpanded
+            h3Time += timeTaken
+
+            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h4,tableSpace=ts)
+            h4Nodes += nodesExpanded
+            h4Time += timeTaken
+
+            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h5,tableSpace=ts)
+            h5Nodes += nodesExpanded
+            h5Time += timeTaken
+
+            sol, nodesExpanded, timeTaken = singleTest(ws,gs,'aStar',heuristic=h6,tableSpace=ts)
+            h6Nodes += nodesExpanded
+            h6Time += timeTaken
+
+        table.add_row(['1', i, ts, h1Nodes/NO_OF_TESTS, h1Time/NO_OF_TESTS])
+        table.add_row(['2', i, ts, h2Nodes/NO_OF_TESTS, h2Time/NO_OF_TESTS])
+        table.add_row(['3', i, ts, h3Nodes/NO_OF_TESTS, h3Time/NO_OF_TESTS])
+        table.add_row(['4', i, ts, h4Nodes/NO_OF_TESTS, h4Time/NO_OF_TESTS])
+        table.add_row(['5', i, ts, h5Nodes/NO_OF_TESTS, h5Time/NO_OF_TESTS])
+        table.add_row(['6', i, ts, h6Nodes/NO_OF_TESTS, h6Time/NO_OF_TESTS])
+
+        i += INCREMENT
+
+    print table
+
+
+    # print 'h5. average nodes expanded:', h5NodesAverage, '. time average:', h5TimeAverage
+    # print 'h6. average nodes expanded:', h6NodesAverage, '. time average:', h6TimeAverage
 
 def createRandomProblem(noOfBlocks, tableSize):
     ws = createRandomState(noOfBlocks,tableSize)

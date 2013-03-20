@@ -7,6 +7,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from blocksWorld import *
 
+NUMBER_OF_BLOCKS = 5
+
 class BW(QMainWindow):
     
     def __init__(self):
@@ -116,6 +118,7 @@ class BW(QMainWindow):
     	self.radioBtnAS4 = QRadioButton('A* 4', self)
         self.radioBtnAS5 = QRadioButton('A* 5', self)
         self.radioBtnAS6 = QRadioButton('A* 6', self)
+        # self.radioBtnSA = QRadioButton('SA', self)
     	
     	hboxAlgo = QHBoxLayout()
     	hboxAlgo.addWidget(self.radioBtnDFS)
@@ -127,6 +130,7 @@ class BW(QMainWindow):
     	hboxAlgo.addWidget(self.radioBtnAS4)
         hboxAlgo.addWidget(self.radioBtnAS5)
         hboxAlgo.addWidget(self.radioBtnAS6)
+        # hboxAlgo.addWidget(self.radioBtnSA)
 
         #solve
         self.solveButton = QPushButton('Solve', self)
@@ -167,7 +171,7 @@ class BW(QMainWindow):
 
     	self.setCentralWidget(mainWidget)
 
-    	self.setGeometry(30, 50, 250, 250)
+    	self.setGeometry(0, 0, 600, 1000)
         self.setWindowTitle('Blocks World')
 
 ##	self.center()
@@ -292,6 +296,8 @@ class BW(QMainWindow):
             algo = 'BFS'
         elif self.radioBtnUCS.isChecked():
             algo = 'UCS'
+        elif self.radioBtnSA.isChecked():
+            algo = 'SA'
         else:
             algo = 'aStar'
             h = None
@@ -409,6 +415,7 @@ class BW(QMainWindow):
         #make sure max height of a pile is <= 5
 
         n = random.randint(5,50) #no. of blocks
+        n = NUMBER_OF_BLOCKS
 
         #start blocks
 
